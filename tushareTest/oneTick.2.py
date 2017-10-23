@@ -39,18 +39,7 @@ def getData(num):
 
 def trainData(fileName):
     df = pd.read_csv(fileName,index_col='date')
-    # print(lines)
-    # print(lines.shape[0])
-    # lines.sort_index(axis=1, ascending=False)
 
-    # index=[]
-    # for i in range(0,700):
-    #     # print(i)
-    #     index.append(i)
-    # index.reverse()
-    # print(index)
-    # lines1=lines.reindex(index)
-    # ff=df['date']
     # df=df.sort_index(ascending=False)
     df=df.sort_index()
     # df.reindex(df['date'])
@@ -60,7 +49,6 @@ def trainData(fileName):
     df['HL_PCT'] = (df['high'] - df['low']) / df['close'] * 100.0
     df['PCT_change'] = (df['close'] - df['open']) / df['open'] * 100.0
     df = df[['close', 'HL_PCT', 'PCT_change', 'volume']]
-    # df['date'] = df['date'] #datetime.datetime.strptime(df['date'], "%Y-%m-%d")
     # df['date'] =  pd.to_datetime(df['date'], format='%Y-%m-%d')
     # df['date'] = pd.to_numeric(df['date'])
 
@@ -137,44 +125,4 @@ def trainData(fileName):
     plt.show()
 # getData('600887')
 trainData('600887-20171023134838.csv')
-# import datetime
-
-# (datetime.datetime.now() - datetime.timedelta(days = 100)).strftime("%Y-%m-%d")
-# string转datetime
-
-#             str = '2012-11-19'
-
-#             date_time = datetime.datetime.strptime(str,'%Y-%m-%d')
-
-#             date_time
-
-# datetime.datetime(2012,11,19,0,0)
-# datetime转string
-
-#             date_time.strftime('%Y-%m-%d')
-
-# '2012-11-19'
-# datetime转时间戳
-
-#             time_time = time.mktime(date_time.timetuple())
-
-#             time_time
-
-# 1353254400.0
-# 时间戳转string
-
-#             time.strftime('%Y-%m-%d',time.localtime(time_time))
-
-# '2012-11-19'
-# date转datetime
-
-#             date = datetime.date.today()
-
-#             date
-
-#             datetime.date(2012,11,19)
-
-#             datetime.datetime.strptime(str(date),'%Y-%m-%d') #将date转换为str，在由str转换为datetime
-
-#             datetime.datetime(2012,11,19,0,0)
 
