@@ -6,6 +6,13 @@ import tushare as ts
 from matplotlib import style
 from sklearn import cross_validation
 from sklearn.linear_model import LinearRegression
+import numpy as np
+from scipy import sparse
+from scipy import ndimage
+from sklearn.linear_model import Lasso
+from sklearn.linear_model import Ridge
+import matplotlib.pyplot as plt
+
 
 
 def getData(num):
@@ -26,33 +33,116 @@ def do_something(x):
     return x
 def trainData(fileName):
     df = pd.read_csv(fileName,index_col='date')
-
     df=df.sort_index()
-    df = df[['open', 'high', 'close', 'low', 'volume', 'price_change' ,'p_change', 'ma5', 'ma10', 'ma20' ,'v_ma5', 'v_ma10', 'v_ma20', 'turnover']]
+    df = df[['open', 'high', 'close', 'price_change' ]]
     print(df.shape[0],df.shape[1])
     index =df.shape[0]
     y = df[['price_change']].ix[1:df.shape[0]]
     # y[['price_change'] ]= y[['price_change'] ].map(lambda x: do_something(x), y[['price_change']])
     y['price_change'] = df['price_change'].map(number_to_flag)
-    df1 = np.array(df.drop(['price_change','p_change'], 1)[0:df.shape[0]-1])
+    df1 = np.array(df.drop(['price_change'], 1)[0:df.shape[0]-1])
     print(df.head(5))
     print(y.head(5))
     print(df1[0:5])
 
-
-    X_train, X_test, y_train ,y_test = cross_validation.train_test_split(df1,y,test_size=0.3)
+    X_train, X_test, y_train ,y_test = cross_validation.train_test_split(df1,y,test_size=0.01)
 
     clf = LinearRegression()
     clf.fit(X_train,y_train)
     accuracy = clf.score(X_test,y_test)
-
     print(accuracy,"---------score------")
-
-
-
     style.use('ggplot')
+    return X_train, X_test, y_train ,y_test,df
 
 
 # getData('600887')
-trainData('600887-20171023134838.csv')
+#
+X_train, X_test, y_train ,y_test,df=trainData('600887-20171023134838.csv')
 
+
+
+# def _weights(x, dx=1, orig=0):
+#     x = np.ravel(x)
+#     floor_x = np.floor((x - orig) / dx)
+#     alpha = (x - orig - floor_x * dx) / dx
+#     return np.hstack((floor_x, floor_x + 1)), np.hstack((1 - alpha, alpha))
+#
+#
+# def _generate_center_coordinates(l_x):
+#     X, Y = np.mgrid[:l_x, :l_x].astype(np.float64)
+#     center = l_x / 2.
+#     X += 0.5 - center
+#     Y += 0.5 - center
+#     return X, Y
+#
+#
+# def build_projection_operator(l_x, n_dir):
+#     X, Y = _generate_center_coordinates(l_x)
+#     angles = np.linspace(0, np.pi, n_dir, endpoint=False)
+#     data_inds, weights, camera_inds = [], [], []
+#     data_unravel_indices = np.arange(l_x ** 2)
+#     data_unravel_indices = np.hstack((data_unravel_indices,
+#                                       data_unravel_indices))
+#     for i, angle in enumerate(angles):
+#         Xrot = np.cos(angle) * X - np.sin(angle) * Y
+#         inds, w = _weights(Xrot, dx=1, orig=X.min())
+#         mask = np.logical_and(inds >= 0, inds < l_x)
+#         weights += list(w[mask])
+#         camera_inds += list(inds[mask] + i * l_x)
+#         data_inds += list(data_unravel_indices[mask])
+#     proj_operator = sparse.coo_matrix((weights, (camera_inds, data_inds)))
+#     return proj_operator
+#
+#
+# def generate_synthetic_data():
+#     """ Synthetic binary data """
+#     rs = np.random.RandomState(0)
+#     n_pts = 36
+#     x, y = np.ogrid[0:l, 0:l]
+#     mask_outer = (x - l / 2.) ** 2 + (y - l / 2.) ** 2 < (l / 2.) ** 2
+#     mask = np.zeros((l, l))
+#     points = l * rs.rand(2, n_pts)
+#     mask[(points[0]).astype(np.int), (points[1]).astype(np.int)] = 1
+#     mask = ndimage.gaussian_filter(mask, sigma=l / n_pts)
+#     res = np.logical_and(mask > mask.mean(), mask_outer)
+#     return np.logical_xor(res, ndimage.binary_erosion(res))
+
+
+# Generate synthetic images, and projections
+# l = 128
+# proj_operator = build_projection_operator(l, l / 7.)
+# data = generate_synthetic_data()
+# proj = proj_operator * data.ravel()[:, np.newaxis]
+# proj += 0.15 * np.random.randn(*proj.shape)
+
+# Reconstruction with L2 (Ridge) penalization
+# rgr_ridge = Ridge(alpha=0.2)
+# X_train, X_test, y_train ,y_test,df=trainData('600887-20171023134838.csv')
+# rgr_ridge.fit(X_train, y_train)
+# # rec_l2 = rgr_ridge.coef_.reshape(df.shshape[0], df.shshape[1])
+#
+# # Reconstruction with L1 (Lasso) penalization
+# # the best value of alpha was determined using cross validation
+# # with LassoCV
+# rgr_lasso = Lasso(alpha=0.001)
+# rgr_lasso.fit(X_train, y_train)
+# # rec_l1 = rgr_lasso.coef_.coef_.reshape(df.shshape[0], df.shshape[1])
+# accuracy=rgr_lasso.score(X_test,y_test)
+# print(accuracy,"---------score------")
+# plt.figure(figsize=(8, 3.3))
+# plt.subplot(131)
+# plt.imshow(df, cmap=plt.cm.gray, interpolation='nearest')
+# plt.axis('off')
+# plt.title('original image')
+# plt.subplot(132)
+# # plt.imshow(rec_l2, cmap=plt.cm.gray, interpolation='nearest')
+# plt.title('L2 penalization')
+# plt.axis('off')
+# plt.subplot(133)
+# # plt.imshow(rec_l1, cmap=plt.cm.gray, interpolation='nearest')
+# plt.title('L1 penalization')
+# plt.axis('off')
+#
+# plt.subplots_adjust(hspace=0.01, wspace=0.01, top=1, bottom=0, left=0,
+#                     right=1)
+# plt.show()

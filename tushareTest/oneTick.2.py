@@ -35,13 +35,6 @@ def getData(num):
     otherStyleTime = datetime.datetime.now().strftime("%Y%m%d%H%M%S")
     pp = ts.get_hist_data(num)
     pp.to_csv('%s-%s.csv'%(num,otherStyleTime),encoding='utf-8')
-def number_to_flag(number):
-    if number > 0:
-        return 1
-    elif number == 0:
-        return 0
-    else:
-        return -1
 
 def do_something(x):
     x= lambda x: 1 if x > 0 else (-1 if x < 0 else 0)
@@ -55,8 +48,8 @@ def trainData(fileName):
     print(df.shape[0],df.shape[1])
     index =df.shape[0]
     y = df[['price_change']].ix[1:df.shape[0]]
-    # y[['price_change'] ]= y[['price_change'] ].map(lambda x: do_something(x), y[['price_change']])
-    y['price_change'] = df['price_change'].map(number_to_flag)
+    y['price_change'] = map(lambda x: do_something(x, y), df['col_1'], df['col_2'])
+    print( lambda x: do_something(x) , df['col_1'])
     df1 = np.array(df.drop(['price_change','p_change'], 1)[0:df.shape[0]-1])
     print(df.head(5))
     print(y.head(5))
