@@ -12,8 +12,8 @@ import matplotlib.pyplot as plt
 from matplotlib import style
 from sklearn.model_selection import cross_val_score
 from sklearn import preprocessing, cross_validation, svm
-from sklearn.linear_model import LinearRegression
-
+from sklearn.linear_model import LinearRegression,LassoLarsIC
+from sklearn.externals import joblib
 # date1=datetime.timedelta(days = -100)
 # print((datetime.datetime.now() - datetime.timedelta(days = 100)).strftime("%Y-%m-%d"))
 
@@ -46,20 +46,20 @@ def trainData(fileName):
     df=df.sort_index()
     df = df[['open', 'high', 'close', 'low', 'volume', 'price_change' ,'p_change', 'ma5', 'ma10', 'ma20' ,'v_ma5', 'v_ma10', 'v_ma20', 'turnover']]
 
-    df = df[['open', 'high', 'low', 'close', 'volume']]
+    df = df[['open', 'high', 'low', 'close', 'volume', 'ma5', 'ma10', 'ma20' ,'v_ma5', 'v_ma10', 'v_ma20']]
     df['HL_PCT'] = (df['high'] - df['low']) / df['close'] * 100.0
     df['PCT_change'] = (df['close'] - df['open']) / df['open'] * 100.0
-    df = df[['close', 'HL_PCT', 'PCT_change', 'volume']]
+    df = df[['close', 'HL_PCT', 'PCT_change', 'volume', 'ma5', 'ma10', 'ma20' ,'v_ma5', 'v_ma10', 'v_ma20']]
     # print(df.head())
     forecast_col = 'close'
     df.fillna(value=-99999, inplace=True)
     # forecast_out = int(math.ceil(0.01 * len(df)))
-    forecast_out = 10
+    forecast_out = 1
     # ??forecast_out???
     df['label'] = df[forecast_col].shift(-forecast_out)
 
     print(df.shape)
-    print(df.tail())
+    print(df)
     X = np.array(df.drop(['label'], 1))
 
     X = preprocessing.scale(X)
@@ -75,9 +75,10 @@ def trainData(fileName):
     print(y.shape)
     X_train, X_test, y_train, y_test = cross_validation.train_test_split(X, y, test_size=0.2)
 
-    clf = LinearRegression()
+    clf = LassoLarsIC(max_iter=100)
     clf.fit(X_train, y_train)
     accuracy = clf.score(X_test, y_test)
+    joblib.dump(clf, "%s.m"%fileName)
     print(accuracy,"---------score------")
 
     forecast_set = clf.predict(X_lately)
@@ -101,6 +102,10 @@ def trainData(fileName):
     df['close'].plot()
     df['Forecast'].plot()
     plt.show()
-# getData('600887')
-trainData('600887-20171024115326.csv')
-
+# getData('002183')
+# trainData('002183-20171024131142.csv')
+clf = joblib.load("002183-20171024131142.csv.m")
+# clf.fit(X_train, y_train)
+# accuracy = clf.score(X_test, y_test)
+# print(accuracy,"---------score------")
+# forecast_set = clf.predict(X_lately)
