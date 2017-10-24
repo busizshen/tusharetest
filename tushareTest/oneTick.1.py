@@ -136,7 +136,7 @@ def trainData(fileName):
     df['Forecast'].plot()
     plt.show()
 # getData('600887')
-trainData('600887-20171023134838.csv')
+trainData('600887-20171024115326.csv')
 # import datetime
 
 # (datetime.datetime.now() - datetime.timedelta(days = 100)).strftime("%Y-%m-%d")
