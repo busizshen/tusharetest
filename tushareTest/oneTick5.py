@@ -34,7 +34,7 @@ from sklearn.externals import joblib
 def getData(num):
     otherStyleTime = datetime.datetime.now().strftime("%Y%m%d%H%M%S")
     pp = ts.get_hist_data(num)
-    pp.to_csv('%s-%s.csv'%(num,otherStyleTime),encoding='utf-8')
+    pp.to_csv('data/%s-%s.csv'%(num,otherStyleTime),encoding='utf-8')
 
 def do_something(x):
     x= lambda x: 1 if x > 0 else (-1 if x < 0 else 0)
@@ -134,12 +134,12 @@ def realData(fileName):
 
 # getData('002183')
 trainData('002183-20171024131142.csv')
-
-# clf.fit(X_train, y_train)
-# accuracy = clf.score(X_test, y_test)
-# print(accuracy,"---------score------")
-
-clf = joblib.load("002183-20171024131142.csv.m")
-X_lately=realData("002183-20171024131142.csv");
-forecast_set = clf.predict(X_lately)
-print(forecast_set)
+#
+# # clf.fit(X_train, y_train)
+# # accuracy = clf.score(X_test, y_test)
+# # print(accuracy,"---------score------")
+#
+# clf = joblib.load("002183-20171024131142.csv.m")
+# X_lately=realData("002183-20171024131142.csv");
+# forecast_set = clf.predict(X_lately)
+# print(forecast_set)
