@@ -17,20 +17,6 @@ from sklearn.linear_model import LinearRegression
 # date1=datetime.timedelta(days = -100)
 # print((datetime.datetime.now() - datetime.timedelta(days = 100)).strftime("%Y-%m-%d"))
 
-# pd=ts.get_concept_classified()
-
-# hs300=ts.get_hs300s()
-# hs300.to_csv('hs300.csv',encoding='utf-8')
-# print(hs300)
-# zz50=ts.get_sz50s()
-# hs300.to_csv('zz50.csv',encoding='utf-8')
-
-# lines = pd.read_csv('hs300.csv',index_col=0)
-# print(lines)
-
-# 002230
-# pp = ts.get_hist_data('600848')
-# pp.to_csv('600848.csv',encoding='utf-8')
 def getData(num):
     otherStyleTime = datetime.datetime.now().strftime("%Y%m%d%H%M%S")
     pp = ts.get_hist_data(num)
