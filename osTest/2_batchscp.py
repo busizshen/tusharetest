@@ -4,7 +4,7 @@
   
 import os  
 # import commands
-tomcat_name="/home/test/tomcat-7.0.73-"
+tomcat_name="/home/tomcat-7.0.73-"
 dir='/home/test'
 service_name=[["server_name1","server_name2"],
             ["server_name3"]]

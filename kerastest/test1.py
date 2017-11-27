@@ -2,7 +2,7 @@ from keras.models import Sequential
 from keras.layers.core import Dense, Dropout, Activation, Flatten
 from keras.layers.convolutional import Convolution2D, MaxPooling2D
 from keras.optimizers import SGD
-from tushareTest.oneTick3 import trainData
+from tushareTest.matplottest import trainData
 
 
 X_train, Y_train, y_train ,y_test,df=trainData(r'../tushareTest/data/002183-20171027180408.csv')

@@ -6,7 +6,7 @@ from sklearn.pipeline import Pipeline
 from sklearn.linear_model import LinearRegression
 from sklearn.preprocessing import PolynomialFeatures
 from sklearn import linear_model
-from tushareTest import oneTick3
+from tushareTest import matplottest
 
 ''''' 数据生成 '''
 # x = np.arange(0, 1, 0.002)
@@ -14,7 +14,7 @@ from tushareTest import oneTick3
 # y = y + x ** 2
 
 # x,y=oneTick3.trainData("")
-x, y, y_train ,y_test,df=oneTick3.trainData('600887-20171023134838.csv')
+x, y, y_train ,y_test,df=matplottest.trainData('600887-20171023134838.csv')
 ''''' 均方误差根 '''
 
 

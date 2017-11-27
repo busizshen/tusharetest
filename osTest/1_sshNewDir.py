@@ -5,7 +5,7 @@ import paramiko
 
 private_key_filename=r'D:\文档\keyName'
 
-service_id=["192.33.10.121"]
+service_id=["192.33.10.999"]
 def remote_scp(host_ip,remote_path,local_path):
      
     client = paramiko.SSHClient() 
