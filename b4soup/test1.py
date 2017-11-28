@@ -13,7 +13,7 @@ print(soup.title.string)
 print(soup)
 # print(soup.dd.a['href'])
 # print(soup.find_all('dd'))
-with  codecs.open("filename1.txt", 'a', "utf-8") as fileObj:
+with  codecs.open("filename.txt", 'a', "utf-8") as fileObj:
     fileObj.write("%s\n" % soup)
 # bsObj=BeautifulSoup(html,"lxml")
 # divdd=bsObj.find('div', id_='list')
