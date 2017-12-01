@@ -21,6 +21,7 @@ def getSimpleTick(num):
     dir='./data/simple'
     otherStyleTime = datetime.datetime.now().strftime("%Y%m%d%H%M%S")
     pp = ts.get_hist_data(num)
+    pp = pp[::-1]
     if not os.path.exists(dir):
         os.makedirs(dir)
     pp.to_csv('%s/%s-%s.csv'%(dir,num,otherStyleTime),encoding='utf-8')
@@ -31,12 +32,13 @@ def getSimpleDetilTick(num):
     otherStyleTime = datetime.datetime.now().strftime("%Y%m%d%H%M%S")
     # pp = ts.get_hist_data(num)
     pp = ts.get_realtime_quotes(num) # 实时分笔接口
+    pp = pp[::-1]
     if not os.path.exists(dir):
         os.makedirs(dir)
     pp.to_csv('%s/%s-%s.csv' % (dir, num, otherStyleTime), encoding='utf-8')
 
 #     大盘指数
-def getSimpleDetilTick():
+def getindex():
     # df = ts.get_tick_data('600848', date='2014-01-09')  #历史分笔接口
     dir = './data/index/'
     otherStyleTime = datetime.datetime.now().strftime("%Y%m%d%H%M%S")
@@ -47,6 +49,6 @@ def getSimpleDetilTick():
     pp.to_csv('%s/%s.csv' % (dir, otherStyleTime), encoding='utf-8')
 # getCZNL(2017,3)
 # getTodayAll()
-# getSimpleTick('600887')
+getSimpleTick('600887')
 # getSimpleDetilTick('600887')
-getSimpleDetilTick()
+# getSimpleDetilTick()
