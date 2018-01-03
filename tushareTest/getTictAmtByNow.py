@@ -9,16 +9,14 @@ import email.mime.text
 import tushare as ts
 import csv, codecs
 
-ss = ['002049', '002302','002555']
+ss = ['002049', '002302','603260','000425','002230','002721']
 dd = ['0', '19.5', '4.12']
 sm = ['0', '1900', '10000']
 
 
 def getAmt():
     df = ts.get_realtime_quotes(ss)
-
-    print(df)
-    print(df.name,df.price)
+    print(df[['name','price']] )
     # csvfile = 'csvtest.csv'
     # msg = ''
     # df.to_csv(csvfile, encoding='utf-8')

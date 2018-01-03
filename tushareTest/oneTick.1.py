@@ -34,16 +34,16 @@ from sklearn.linear_model import LinearRegression
 def getData(num):
     otherStyleTime = datetime.datetime.now().strftime("%Y%m%d%H%M%S")
     pp = ts.get_hist_data(num)
+    # pp=pp[::-1]
     pp.to_csv('%s-%s.csv'%(num,otherStyleTime),encoding='utf-8')
 
+# getData('601318')
 
 def trainData(fileName):
     df = pd.read_csv(fileName,index_col='date')
-
-    df=df.sort_index()
-
+    df = df[::-1]
     df = df[['open',  'high',  'low',  'close', 'volume']]
-    # print(df)
+    print(df)
     df['HL_PCT'] = (df['high'] - df['low']) / df['close'] * 100.0
     df['PCT_change'] = (df['close'] - df['open']) / df['open'] * 100.0
     df = df[['close', 'HL_PCT', 'PCT_change', 'volume']]
@@ -55,12 +55,11 @@ def trainData(fileName):
     # print(df[2:3])
     forecast_col = 'close'
     df.fillna(value=-99999, inplace=True)
-    forecast_out = int(math.ceil(0.01 * len(df)))
+    forecast_out = int(math.ceil(1))
 
     df['label'] = df[forecast_col].shift(-forecast_out)
-    print(df['label'],"-----------------------")
-    print(df.shape)
-    print(df.tail())
+
+
     X = np.array(df.drop(['label'], 1))
 
 
@@ -122,7 +121,7 @@ def trainData(fileName):
     df['close'].plot()
     df['Forecast'].plot()
     plt.show()
-getData('600887')
-# trainData('600887-20171024115326.csv')
+# getData('600887')
+trainData('600887-20180102134413.csv')
 
 

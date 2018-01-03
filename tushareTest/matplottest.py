@@ -51,15 +51,22 @@ def trainData(fileName):
 # X_train, Y_train, y_train ,y_test,df=trainData(r'../tushareTest/data/002183-20171027180408.csv')
 
 df = pd.read_csv("./data/002049-20171124161837.csv",index_col='date')
-df=df[::-1]
-v= df.columns.values
-print(v)
-i=0
-for c in v:
-    plt.figure(i)
-    i+=1
-    plt.gca().xaxis.set_major_formatter(mdates.DateFormatter('%Y-%m-%d'))
-    xs = [datetime.datetime.strptime(d, '%Y-%m-%d').date() for d in df.index]
-    plt.title(c)
-    plt.plot(xs, df[c], 'mo')
-plt.show()
+df=df.iloc[0:3,0:5]
+print(df.shape)
+#
+# df = df[['open', 'high', 'close', 'price_change' ]]
+# df[['open1', 'high1', 'close1', 'price_change1' ]]= df[['open', 'high', 'close', 'price_change' ]]
+#
+#
+# v= df.columns.values
+# print(df.head(5))
+# print(df.index)
+# i=0
+# for c in v:
+#     plt.figure(i)
+#     i+=1
+#     plt.gca().xaxis.set_major_formatter(mdates.DateFormatter('%Y-%m-%d'))
+#     xs = [datetime.datetime.strptime(d, '%Y-%m-%d').date() for d in df.index]
+#     plt.title(c)
+#     plt.plot(xs, df[c], 'mo')
+# plt.show()
