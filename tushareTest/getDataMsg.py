@@ -7,6 +7,15 @@ import pandas as pd
 import numpy as np
 import tangguo.gongshi as gongshi
 dir = "./data"
+
+
+# df = ts.get_today_ticks('601333')
+# df.head(10)
+
+
+# df = ts.get_tick_data('600848',date='2014-01-09')
+# df.head(10)
+
 # 成长
 def getCZNL(nian,ji):
     otherStyleTime = datetime.datetime.now().strftime("%Y%m%d%H%M%S")
@@ -78,6 +87,21 @@ def genTick(num,df):
     a = gongshi.gongshi(C, M, N)
     b=a.var8()
 
+    if float(b)>=2.5:
+        print("----------------",b,num)
+        with open('test.txt', 'a') as fp:
+            fp.write("----------------",b,num)
+    row = [b, str(num)]
+    return row
+
+def jiaolongmairu(num,df):
+    # df = df[::-1]
+    df=df.head(250)
+    C= np.array(df.close).tolist()
+    M= np.array(df.high).tolist()
+    N= np.array(df.low).tolist()
+    a = gongshi.gongshi(C, M, N)
+    b=a.jiaolongmairu()
 
     if float(b)>=2.5:
         print("----------------",b,num)
@@ -86,46 +110,131 @@ def genTick(num,df):
     row = [b, str(num)]
     return row
 
-# if __name__ == '__main__':
-#     fileName=r"data\todayAll\20180103103838.csv"
-#     df = pd.read_csv(fileName)
-#     codeList=np.array(df.code).tolist()
-#     for index,code in enumerate(codeList):
-#         print(code,index)
-#         getSimpleTick(code)
+def todayAll():
+    df = getTodayAll()
+    codeList=np.array(df.code).tolist()
+    for index,code in enumerate(codeList):
+        print(code,index)
+        getSimpleTick(code)
 
 
-def getAmt(ss):
+def getAmt(ss,name):
     df = ts.get_realtime_quotes(ss)
+    df["change"]= df.price.astype(float)/df.pre_close.astype(float)
     otherStyleTime = datetime.datetime.now().strftime("%Y%m%d%H%M%S")
     print(df[['name', 'price']])
-    df.to_csv("test1%s.cvs"%(otherStyleTime),encoding='utf-8')
+    df.to_csv("getAmt%s%s.cvs"%(otherStyleTime,name),encoding='utf-8')
+    print(df.info)
+    return df
 
-
-if __name__ == '__main__':
-    fileName = r"data\todayAll\20180103103838.csv"
+def ver8(fileName):
     otherStyleTime = datetime.datetime.now().strftime("%Y%m%d")
-
+    otherStyleTime1 = datetime.datetime.now().strftime("%Y%m%d%H%M%S")
     df = pd.read_csv(fileName)
-    codeList=np.array(df.code).tolist()
-    aa =[]
-    for index,code in enumerate(codeList):
+    codeList = np.array(df.code).tolist()
+    aa = []
+    for index, code in enumerate(codeList):
+        if len(str(code)) == 3:
+            code = "000%s" % (code)
+        if len(str(code)) == 4:
+            code = "00%s" % (code)
+        if len(str(code)) == 2:
+            code = "0000%s" % (code)
         try:
-            fileName = r"data\simple\%s-%s.csv"%(code,otherStyleTime)
+            fileName = r"data\simple\%s-%s.csv" % (code, otherStyleTime)
             # print(fileName)
             df = pd.read_csv(fileName)
-            row =genTick(code, df)
+            print(df.shape)
+            # if df.shape[0]<250:
+            #     continue
+            row = genTick(code, df)
             aa.append(row)
-        except Exception as e :
-            print(index,code,"error",e)
+        except Exception as e:
+            print(index, code, "error", e)
+            with open('test.txt', 'a') as fp:
+                fp.write("%s%s%s---------%s" % (index, code, "error", otherStyleTime1))
 
     data = pd.DataFrame(aa)
 
-
-    data=data.sort_values(0,ascending=False)
-    data.columns = ['a','b']
-
-    data.to_csv("test1.cvs",encoding='utf-8')
-    data=data.head(20)
-    getAmt(np.array(data.b).tolist())
+    data = data.sort_values(0, ascending=False)
+    data.columns = ['a', 'b']
+    data.to_csv("ver8%s.cvs"%(otherStyleTime1), encoding='utf-8')
+    data = data.head(20)
+    getAmt(np.array(data.b).tolist(),"ver8")
     print(data.head(20))
+
+def jiaolongmairuList(fileName):
+    otherStyleTime = datetime.datetime.now().strftime("%Y%m%d")
+    otherStyleTime1 = datetime.datetime.now().strftime("%Y%m%d%H%M%S")
+    df = pd.read_csv(fileName)
+    codeList = np.array(df.code).tolist()
+    aa = []
+    for index, code in enumerate(codeList):
+        if len(str(code)) == 3:
+            code = "000%s" % (code)
+        if len(str(code)) == 4:
+            code = "00%s" % (code)
+        if len(str(code)) == 2:
+            code = "0000%s" % (code)
+        try:
+            fileName = r"data\simple\%s-%s.csv" % (code, otherStyleTime)
+            # print(fileName)
+            df = pd.read_csv(fileName)
+            print(df.shape)
+            # if df.shape[0]<250:
+            #     continue
+            row = jiaolongmairu(code, df)
+            aa.append(row)
+        except Exception as e:
+            print(index, code, "error", e)
+            with open('test.txt', 'a') as fp:
+                fp.write("%s%s%s---------%s" % (index, code, "error", otherStyleTime1))
+
+    data = pd.DataFrame(aa)
+    data = data.sort_values(0, ascending=False)
+    data.columns = ['a', 'b']
+    data.to_csv("jialongmairu%s.cvs"%(otherStyleTime1), encoding='utf-8')
+    data = data.head(20)
+    getAmt(np.array(data.b).tolist(),"jiaolong")
+    print(data.head(20))
+
+def currentP(fileName):
+    # todayAll()
+    # fileName = r"test120180103144648.cvs"
+    otherStyleTime = datetime.datetime.now().strftime("%Y%m%d")
+    otherStyleTime1 = datetime.datetime.now().strftime("%Y%m%d%H%M%S")
+    df = pd.read_csv(fileName)
+    codeList=np.array(df.code).tolist()
+    # for index, code in enumerate(codeList):
+    aa =[]
+    for index,code in enumerate(codeList):
+        if len(str(code))==3:
+            code="000%s"%(code)
+        if len(str(code))==4:
+            code="00%s"%(code)
+        if len(str(code))==2:
+            code="0000%s"%(code)
+        aa.append(str(code))
+    dd = getAmt(aa)
+    df["price1"]=dd.price
+    # print(df["price1"])
+    print(dd["price"].astype(float))
+    df["amt"]=df["price"].astype(float) -df["price1"].astype(float)
+    print(df.info())
+    print(df[['name','code','price','price1','amt']])
+
+if __name__ == '__main__':
+    # todayAll()
+    fileName = r"data\todayAll\20180108151219.csv"
+    ver8(fileName)
+    jiaolongmairuList(fileName)
+
+
+
+
+
+
+
+
+
+# 002360 002216 002600 002529
