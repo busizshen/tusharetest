@@ -215,19 +215,23 @@ def currentP(fileName):
         if len(str(code))==2:
             code="0000%s"%(code)
         aa.append(str(code))
-    dd = getAmt(aa)
+    dd = getAmt(aa,"currentprice1")
     df["price1"]=dd.price
     # print(df["price1"])
     print(dd["price"].astype(float))
-    df["amt"]=df["price"].astype(float) -df["price1"].astype(float)
+    df["amt"]= df["price1"].astype(float)-df["price"].astype(float)
+
+    df["rate"]= (df["price1"].astype(float)/df["price"].astype(float)-1)*100
     print(df.info())
-    print(df[['name','code','price','price1','amt']])
+    print(df[['name','code','price','price1','amt','rate']])
 
 if __name__ == '__main__':
     # todayAll()
-    fileName = r"data\todayAll\20180108151219.csv"
-    ver8(fileName)
-    jiaolongmairuList(fileName)
+    # fileName = r"data\todayAll\20180108151219.csv"
+    # ver8(fileName)
+    # jiaolongmairuList(fileName)
+    fileName = r"getAmt20180108160143jiaolong.cvs"
+    currentP(fileName)
 
 
 
