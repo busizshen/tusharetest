@@ -224,13 +224,14 @@ def currentP(fileName):
     df["rate"]= (df["price1"].astype(float)/df["price"].astype(float)-1)*100
     print(df.info())
     print(df[['name','code','price','price1','amt','rate']])
+    print(df[['rate']].head(10).fillna(0).apply(sum)/10.0)
 
 if __name__ == '__main__':
     # todayAll()
     # fileName = r"data\todayAll\20180108151219.csv"
     # ver8(fileName)
     # jiaolongmairuList(fileName)
-    fileName = r"getAmt20180108160143jiaolong.cvs"
+    fileName = r"getAmt20180108160129ver8.cvs"
     currentP(fileName)
 
 
