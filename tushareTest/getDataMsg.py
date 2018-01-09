@@ -1,20 +1,46 @@
 import datetime
-
 import os
-import tushare as ts
-import pandas as pd
 
+import math
+import matplotlib.pyplot as plt
 import numpy as np
+import pandas as pd
+import tushare as ts
+from matplotlib import style
+from sklearn import preprocessing, cross_validation
+from sklearn.linear_model import LinearRegression
+
 import tangguo.gongshi as gongshi
+
 dir = "./data"
 
 
-# df = ts.get_today_ticks('601333')
-# df.head(10)
+def dfvolume(fileName):
+    df = pd.read_csv(fileName,index_col='date')
+    df = df[::-1]
 
+    fig = plt.figure()
+    ax = fig.add_subplot(111)
+    ax.set_title(fileName)
+    ax.set_xlabel("x value")
+    ax.set_ylabel("y value")
+    # date,open,high,close,low,volume,price_change,p_change,ma5,ma10,ma20,v_ma5,v_ma10,v_ma20,turnover
+    # df['volume'].plot()
+    df['close'] = df['close']
+    df['close'].plot( color='r')
+    # df['volume'].plot()
+    style.use('ggplot')
 
-# df = ts.get_tick_data('600848',date='2014-01-09')
-# df.head(10)
+    ax = fig.add_subplot(121)
+    # ax.set_title("成交量")
+    # date,open,high,close,low,volume,price_change,p_change,ma5,ma10,ma20,v_ma5,v_ma10,v_ma20,turnover
+    # df['volume'].plot()
+    # df['close'] = df['close'] ** 4
+    # df['close'].plot()
+    df['volume'].plot( color='m')
+    style.use('ggplot')
+    # ax.plot(df['close'], df.index, 'o')
+    plt.show()
 
 # 成长
 def getCZNL(nian,ji):
@@ -199,13 +225,8 @@ def jiaolongmairuList(fileName):
     print(data.head(20))
 
 def currentP(fileName):
-    # todayAll()
-    # fileName = r"test120180103144648.cvs"
-    otherStyleTime = datetime.datetime.now().strftime("%Y%m%d")
-    otherStyleTime1 = datetime.datetime.now().strftime("%Y%m%d%H%M%S")
     df = pd.read_csv(fileName)
     codeList=np.array(df.code).tolist()
-    # for index, code in enumerate(codeList):
     aa =[]
     for index,code in enumerate(codeList):
         if len(str(code))==3:
@@ -218,13 +239,30 @@ def currentP(fileName):
     dd = getAmt(aa,"currentprice1")
     df["price1"]=dd.price
     # print(df["price1"])
-    print(dd["price"].astype(float))
+    # print(dd["price"].astype(float))
     df["amt"]= df["price1"].astype(float)-df["price"].astype(float)
-
     df["rate"]= (df["price1"].astype(float)/df["price"].astype(float)-1)*100
-    print(df.info())
+    # print(df.info())
     print(df[['name','code','price','price1','amt','rate']])
     print(df[['rate']].head(10).fillna(0).apply(sum)/10.0)
+
+
+def draw(fileName,otherStyleTime):
+    df = pd.read_csv(fileName)
+    codeList = np.array(df.code).tolist()
+    aa = []
+    for index, code in enumerate(codeList):
+        if len(str(code)) == 3:
+            code = "000%s" % (code)
+        if len(str(code)) == 4:
+            code = "00%s" % (code)
+        if len(str(code)) == 2:
+            code = "0000%s" % (code)
+        aa.append(str(code))
+        dir1 = '%s/simple' % (dir)
+        fileName = '%s/%s-%s.csv' % (dir1, code, otherStyleTime)
+        dfvolume(fileName)
+
 
 if __name__ == '__main__':
     # todayAll()
@@ -233,13 +271,5 @@ if __name__ == '__main__':
     # jiaolongmairuList(fileName)
     fileName = r"getAmt20180108160129ver8.cvs"
     currentP(fileName)
+    draw(fileName,'20180108')
 
-
-
-
-
-
-
-
-
-# 002360 002216 002600 002529
