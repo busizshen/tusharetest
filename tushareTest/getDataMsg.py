@@ -1,14 +1,11 @@
 import datetime
 import os
 
-import math
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 import tushare as ts
 from matplotlib import style
-from sklearn import preprocessing, cross_validation
-from sklearn.linear_model import LinearRegression
 
 import tangguo.gongshi as gongshi
 
@@ -26,19 +23,20 @@ def dfvolume(fileName):
     ax.set_ylabel("y value")
     # date,open,high,close,low,volume,price_change,p_change,ma5,ma10,ma20,v_ma5,v_ma10,v_ma20,turnover
     # df['volume'].plot()
-    df['close'] = df['close']
-    df['close'].plot( color='r')
-    # df['volume'].plot()
-    style.use('ggplot')
+    # df['close'] = df['close']
+    # df['close'].plot( color='r')
+    df['volume'].plot( color='m')
+    # style.use('ggplot')
 
     ax = fig.add_subplot(121)
-    # ax.set_title("成交量")
+    ax.set_title("成交量")
     # date,open,high,close,low,volume,price_change,p_change,ma5,ma10,ma20,v_ma5,v_ma10,v_ma20,turnover
     # df['volume'].plot()
-    # df['close'] = df['close'] ** 4
-    # df['close'].plot()
-    df['volume'].plot( color='m')
-    style.use('ggplot')
+    ax.set_xlabel("riqi")
+    df['close'] = df['close'] ** 4
+    df['close'].plot( color='r')
+    # df['volume'].plot( color='m')
+    # style.use('ggplot')
     # ax.plot(df['close'], df.index, 'o')
     plt.show()
 
@@ -188,9 +186,11 @@ def ver8(fileName):
     data = data.head(20)
     getAmt(np.array(data.b).tolist(),"ver8")
     print(data.head(20))
+    return data
 
-def jiaolongmairuList(fileName):
-    otherStyleTime = datetime.datetime.now().strftime("%Y%m%d")
+
+def jiaolongmairuList(fileName,otherStyleTime):
+    # otherStyleTime = datetime.datetime.now().strftime("%Y%m%d")
     otherStyleTime1 = datetime.datetime.now().strftime("%Y%m%d%H%M%S")
     df = pd.read_csv(fileName)
     codeList = np.array(df.code).tolist()
@@ -242,9 +242,16 @@ def currentP(fileName):
     # print(dd["price"].astype(float))
     df["amt"]= df["price1"].astype(float)-df["price"].astype(float)
     df["rate"]= (df["price1"].astype(float)/df["price"].astype(float)-1)*100
+    df["rate1"]= (df["price1"].astype(float)/df["pre_close"].astype(float)-1)*100
+
     # print(df.info())
-    print(df[['name','code','price','price1','amt','rate']])
+    print(df[['name','code','price','price1','amt','rate','rate1']])
     print(df[['rate']].head(10).fillna(0).apply(sum)/10.0)
+
+def bankCurrentP():
+    aa =['601398','601288','601939','601988']
+    dd = getAmt(aa,"bankcurrentprice1")
+    print(dd)
 
 
 def draw(fileName,otherStyleTime):
@@ -254,6 +261,8 @@ def draw(fileName,otherStyleTime):
     for index, code in enumerate(codeList):
         if len(str(code)) == 3:
             code = "000%s" % (code)
+        if len(str(code)) == 1:
+            code = "00000%s" % (code)
         if len(str(code)) == 4:
             code = "00%s" % (code)
         if len(str(code)) == 2:
@@ -263,13 +272,79 @@ def draw(fileName,otherStyleTime):
         fileName = '%s/%s-%s.csv' % (dir1, code, otherStyleTime)
         dfvolume(fileName)
 
+def doservice(num,df,servicename):
+    # df = df[::-1]
+    df=df.head(250)
+    C= np.array(df.close).tolist()
+    M= np.array(df.high).tolist()
+    N= np.array(df.low).tolist()
+    a = gongshi.gongshi(C, M, N)
+    b=getattr(a, servicename)()
+    print(b)
+    if float(b)>=2.5:
+        print("----------------",b,num)
+        with open('test.txt', 'a') as fp:
+            fp.write("----------------",b,num)
+    row = [b, str(num)]
+    return row
+
+def ver8M250(fileName ):
+    serviceNmae='ver8M250'
+    otherStyleTime = datetime.datetime.now().strftime("%Y%m%d")
+    otherStyleTime1 = datetime.datetime.now().strftime("%Y%m%d%H%M%S")
+    df = pd.read_csv(fileName)
+    codeList = np.array(df.code).tolist()
+    aa = []
+    for index, code in enumerate(codeList):
+        if len(str(code)) == 1:
+            code = "00000%s" % (code)
+        if len(str(code)) == 3:
+            code = "000%s" % (code)
+        if len(str(code)) == 4:
+            code = "00%s" % (code)
+        if len(str(code)) == 2:
+            code = "0000%s" % (code)
+        try:
+            fileName = r"data\simple\%s-%s.csv" % (code, otherStyleTime)
+            # print(fileName)
+            df = pd.read_csv(fileName)
+            print(df.shape)
+            if df.shape[0]<250:
+                continue
+            # row = doservice(code, df,'var4')
+            # row = doservice(code, df, 'jiaolongchugong')
+            row = doservice(code, df, 'var8')
+            aa.append(row)
+        except Exception as e:
+            print(index, code, "error", e)
+
+
+    data = pd.DataFrame(aa)
+
+    data = data.sort_values(0, ascending=False)
+    data.columns = ['a', 'b']
+    data.to_csv("var8M250%s.cvs"%(otherStyleTime1), encoding='utf-8')
+    data = data.head(20)
+    getAmt(np.array(data.b).tolist(),serviceNmae)
+    print(data.head(20))
+    return data
 
 if __name__ == '__main__':
     # todayAll()
-    # fileName = r"data\todayAll\20180108151219.csv"
-    # ver8(fileName)
-    # jiaolongmairuList(fileName)
-    fileName = r"getAmt20180108160129ver8.cvs"
-    currentP(fileName)
-    draw(fileName,'20180108')
+    fileName = r"data\todayAll\20180122151532.csv"
+    data1= ver8M250(fileName)
+    # data2 =ver8(fileName)
+    # data3= pd.merge(data1, data2, on=["b"])
+    # print(data3)
+    # data3.to_csv("data3.cvs", encoding='utf-8')
+    # jiaolongmairuList(fileName,'20180119')
+    # fileName = r"getAmt20180122115431jiaolong.cvs"
+    # currentP(fileName)
+    # draw(fileName,'20180111')
+    # bankCurrentP()
 
+# 603986 300657 300701 300678
+
+# 601398.XSHG', '601288.XSHG','601939.XSHG','601988.XSHG 银行代码
+
+# 华通热力 弘信电子 兆易创新 中航黑豹 隆盛科技 迪贝电气 海辰药业 瑞特股份  正裕工业 大博医疗
