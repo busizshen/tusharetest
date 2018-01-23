@@ -56,6 +56,7 @@ def trainData(fileName):
     forecast_col = 'close'
     df.fillna(value=-99999, inplace=True)
     forecast_out = int(math.ceil(1))
+# what
 
     df['label'] = df[forecast_col].shift(-forecast_out)
 
