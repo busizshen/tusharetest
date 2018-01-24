@@ -5,7 +5,7 @@ from keras.optimizers import SGD
 from tushareTest.matplottest import trainData
 
 
-X_train, Y_train, y_train ,y_test,df=trainData(r'../tushareTest/data/002183-20171027180408.csv')
+X_train, Y_train, y_train ,y_test,df=trainData(r'D:/PycharmProjects/tushare/tushareTest/data/002183-20171027180408.csv')
 
 model = Sequential()
 # input: 100x100 images with 3 channels -> (3, 100, 100) tensors.

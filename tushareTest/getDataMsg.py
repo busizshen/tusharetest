@@ -7,7 +7,7 @@ import pandas as pd
 import tushare as ts
 from matplotlib import style
 
-import tangguo.gongshi as gongshi
+# import tangguo.gongshi as gongshi
 
 dir = "./data"
 
@@ -330,9 +330,9 @@ def ver8M250(fileName ):
     return data
 
 if __name__ == '__main__':
-    # todayAll()
-    fileName = r"data\todayAll\20180122151532.csv"
-    data1= ver8M250(fileName)
+    todayAll()
+    # fileName = r"data\todayAll\20180122151532.csv"
+    # data1= ver8M250(fileName)
     # data2 =ver8(fileName)
     # data3= pd.merge(data1, data2, on=["b"])
     # print(data3)

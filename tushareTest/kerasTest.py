@@ -17,7 +17,7 @@ import numpy as np
 from pandas import DataFrame
 from numpy import row_stack,column_stack
 
-df=ts.get_hist_data('600887',start='2016-06-15',end='2018-01-24')
+df=ts.get_hist_data('600699',start='2016-06-15',end='2018-01-24')
 # df =df[::-1]
 # df =df.head(120)
 dd=df[['open','high','low','close']]
