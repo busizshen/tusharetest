@@ -17,23 +17,23 @@ import numpy as np
 from pandas import DataFrame
 from numpy import row_stack,column_stack
 
-df=ts.get_hist_data('002049',start='2016-06-15',end='2018-01-24')
+df=ts.get_hist_data('600887',start='2016-06-15',end='2018-01-24')
 # df =df[::-1]
-df =df.head(120)
+# df =df.head(120)
 dd=df[['open','high','low','close']]
 
 #print(dd.values.shape[0])
 
 dd1=dd .sort_index()
 
+print("dd1--------", dd1 )
 dd2=dd1.values.flatten()
-print("dd2--------", dd2 )
 g1=dd2[::-1]
-
+print("dd2--------", dd2 )
 g2=g1[0:120]
-
+print("g2--------", g2 )
 g3=g2[::-1]
-
+print("g3--------", g3 )
 gg=DataFrame(g3)
 
 gg.T.to_excel('gg.xls')
@@ -62,14 +62,16 @@ import pandas as pd
 
 
 inputfile1='fg.xls' #训练数据
-testoutputfile = 'test_output_data.xls' #测试数据模型输出文件
+# testoutputfile = 'test_output_data.xls' #测试数据模型输出文件
 data_train = pd.read_excel(inputfile1) #读入训练数据(由日志标记事件是否为洗浴)
 data_mean = data_train.mean()
 data_std = data_train.std()
 data_train1 = (data_train-data_mean)/5  #数据标准化
 
 y_train = data_train1.iloc[:,120:140].as_matrix() #训练样本标签列
+print(y_train.shape)
 x_train = data_train1.iloc[:,0:120].as_matrix() #训练样本特征
+print(x_train.shape)
 #y_test = data_test.iloc[:,4].as_matrix() #测试样本标签列
 
 from keras.models import Sequential
@@ -154,5 +156,5 @@ ax.autoscale_view()
 plt.setp(plt.gca().get_xticklabels(), rotation=45, horizontalalignment='right')
 
 ax.grid(True)
-#plt.title('000002')
+plt.title('test')
 plt.show()
