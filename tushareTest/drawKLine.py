@@ -2,11 +2,11 @@ from pandas import DataFrame, Series
 import pandas as pd;
 import numpy as np
 import matplotlib.pyplot as plt
-from matplotlib import dates as mdates
 from matplotlib import ticker as mticker
 from matplotlib.finance import candlestick_ohlc
 from matplotlib.dates import DateFormatter, WeekdayLocator, DayLocator, MONDAY, YEARLY
 from matplotlib.dates import MonthLocator, MONTHLY
+from matplotlib import dates as mdates
 import datetime as dt
 import pylab
 import talib
@@ -15,8 +15,8 @@ daylinefilespath = 'G:\\dayline\\'
 stock_b_code = '000001'  # 平安银行
 MA1 = 10
 MA2 = 50
-startdate = dt.date(2016, 6, 29)
-enddate = dt.date(2018, 1, 22)
+# startdate = dt.date(2016, 6, 29)
+# enddate = dt.date(2018, 1, 22)
 
 def readstkData(rootpath, stockcode, sday, eday):
     returndata = pd.DataFrame()
@@ -52,9 +52,11 @@ def moving_average(l, N):
 
     return result
 
-def main():
+def draw(fileName,code,name):
     # days = readstkData(daylinefilespath, stock_b_code, startdate, enddate)
-    days = pd.read_csv(r"D:\PycharmProjects\tusharetest\tushareTest\data\simple\000001-20180122.csv")
+    print(fileName)
+    days = pd.read_csv(fileName)
+    # days=days.head(150);
     # drop the date index from the dateframe & make a copy
     daysreshape = days.reset_index()
     # convert the datetime64 column in the dataframe to 'float days'
@@ -68,7 +70,7 @@ def main():
 
     Av1 = moving_average(daysreshape.close.values, MA1)
     Av2 = moving_average(daysreshape.close.values, MA2)
-    SP = len(daysreshape.date.values[MA2 - 1:])
+    SP = len(daysreshape.date.values)
     fig = plt.figure(facecolor='#07000d', figsize=(15, 10))
 
     ax1 = plt.subplot2grid((6, 4), (1, 0), rowspan=4, colspan=4, axisbg='#07000d')
@@ -94,7 +96,7 @@ def main():
 
 
 
-    # plot an RSI indicator on top
+    # # plot an RSI indicator on top
     maLeg = plt.legend(loc=9, ncol=2, prop={'size': 7},
                        fancybox=True, borderaxespad=0.)
     maLeg.get_frame().set_alpha(0.4)
@@ -124,6 +126,7 @@ def main():
     ax0.tick_params(axis='y', colors='w')
     ax0.tick_params(axis='x', colors='w')
     plt.ylabel('RSI')
+
 
     volumeMin = 0
     ax1v = ax1.twinx()
@@ -172,18 +175,19 @@ def main():
     # ----------
 
     plt.suptitle(stock_b_code, color='w')
-    plt.setp(ax0.get_xticklabels(), visible=False)
+    # plt.setp(ax0.get_xticklabels(), visible=False)
     plt.setp(ax1.get_xticklabels(), visible=False)
     # Mark big event
     # TODO: Make a real case here
-    ax1.annotate('BreakNews!', (daysreshape.date.values[155], Av1[155]),
-                 xytext=(0.8, 0.9), textcoords='axes fraction',
-                 arrowprops=dict(facecolor='white', shrink=0.05),
-                 fontsize=10, color='w',
-                 horizontalalignment='right', verticalalignment='bottom')
+    # ax1.annotate('BreakNews!', (daysreshape.date.values[155], Av1[155]),
+    #              xytext=(0.8, 0.9), textcoords='axes fraction',
+    #              arrowprops=dict(facecolor='white', shrink=0.05),
+    #              fontsize=10, color='w',
+    #              horizontalalignment='right', verticalalignment='bottom')
 
     plt.subplots_adjust(left=.09, bottom=.14, right=.94, top=.95, wspace=.20, hspace=0)
-    plt.show()
+    # plt.show()
+    fig = plt.gcf()
+    otherStyleTime1 = dt.datetime.now().strftime("%Y%m%d%H%M%S")
+    fig.savefig("./img/code-%s-%s-kLine-%s.png" % (code, name, otherStyleTime1))
 
-if __name__ == "__main__":
-    main()

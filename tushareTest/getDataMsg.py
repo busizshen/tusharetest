@@ -6,7 +6,7 @@ import numpy as np
 import pandas as pd
 import tushare as ts
 from matplotlib import style
-
+from tushareTest.kerasTest import test1
 import tangguo.gongshi as gongshi
 
 dir = "./data"
@@ -246,7 +246,7 @@ def currentP(fileName):
 
     # print(df.info())
     print(df[['name','code','price','price1','amt','rate','rate1']])
-    print(df[['rate']].head(10).fillna(0).apply(sum)/10.0)
+    print(df[['rate']].head(5).fillna(0).apply(sum)/5.0)
 
 def bankCurrentP():
     aa =['601398','601288','601939','601988']
@@ -291,6 +291,7 @@ def doservice(num,df,servicename):
 def ver8M250(fileName ):
     serviceNmae='ver8M250'
     otherStyleTime = datetime.datetime.now().strftime("%Y%m%d")
+    # otherStyleTime = "20180128"
     otherStyleTime1 = datetime.datetime.now().strftime("%Y%m%d%H%M%S")
     df = pd.read_csv(fileName)
     codeList = np.array(df.code).tolist()
@@ -308,6 +309,8 @@ def ver8M250(fileName ):
             fileName = r"data\simple\%s-%s.csv" % (code, otherStyleTime)
             # print(fileName)
             df = pd.read_csv(fileName)
+            # test = test1(df)
+            # test.trade()
             print(df.shape)
             if df.shape[0]<250:
                 continue
@@ -329,19 +332,50 @@ def ver8M250(fileName ):
     print(data.head(20))
     return data
 
+
+def test20(fileName ):
+    otherStyleTime = datetime.datetime.now().strftime("%Y%m%d")
+    df = pd.read_csv(fileName)
+    codeList = np.array(df.code).tolist()
+
+    name = np.array(df.name).tolist()
+    for index, code in enumerate(codeList):
+        if len(str(code)) == 1:
+            code = "00000%s" % (code)
+        if len(str(code)) == 3:
+            code = "000%s" % (code)
+        if len(str(code)) == 4:
+            code = "00%s" % (code)
+        if len(str(code)) == 2:
+            code = "0000%s" % (code)
+        fileName = r"data\simple\%s-%s.csv" % (code, otherStyleTime)
+        # print(fileName)
+        df = pd.read_csv(fileName)
+
+        if df.shape[0] < 250:
+            continue
+        print(name[index],code)
+        # test = test1(df,code,name[index])
+        # test.trade()
+        # test.test()
+        from tushareTest.drawKLine import draw
+        draw(fileName, code, name[index])
+
 if __name__ == '__main__':
     # todayAll()
-    fileName = r"data\todayAll\20180122151532.csv"
-    data1= ver8M250(fileName)
+    # fileName = r"data\todayAll\20180128095320.csv"
+    # data1= ver8M250(fileName)
     # data2 =ver8(fileName)
     # data3= pd.merge(data1, data2, on=["b"])
     # print(data3)
     # data3.to_csv("data3.cvs", encoding='utf-8')
     # jiaolongmairuList(fileName,'20180119')
-    # fileName = r"getAmt20180122115431jiaolong.cvs"
+    # fileName = r"getAmt20180126132842ver8M250.cvs"
     # currentP(fileName)
     # draw(fileName,'20180111')
     # bankCurrentP()
+    fileName = r"getAmt20180126132842ver8M250.cvs"
+    test20(fileName)
 
 # 603986 300657 300701 300678
 
