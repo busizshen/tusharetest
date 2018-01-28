@@ -361,9 +361,36 @@ def test20(fileName ):
         from tushareTest.drawKLine import draw
         draw(fileName, code, name[index])
 
+def drawAll(fileName ):
+    otherStyleTime = datetime.datetime.now().strftime("%Y%m%d")
+    # otherStyleTime = "20180128"
+    df = pd.read_csv(fileName)
+    codeList = np.array(df.code).tolist()
+    aa = []
+    name = np.array(df.name).tolist()
+    for index, code in enumerate(codeList):
+        if len(str(code)) == 1:
+            code = "00000%s" % (code)
+        if len(str(code)) == 3:
+            code = "000%s" % (code)
+        if len(str(code)) == 4:
+            code = "00%s" % (code)
+        if len(str(code)) == 2:
+            code = "0000%s" % (code)
+        try:
+            fileName = r"data\simple\%s-%s.csv" % (code, otherStyleTime)
+            # print(fileName)
+
+            draw(fileName, code, name[index])
+        except Exception as e:
+            print(index, code, "error", e)
+
+
+
 if __name__ == '__main__':
     # todayAll()
-    # fileName = r"data\todayAll\20180128095320.csv"
+    fileName = r"data\todayAll\20180128095320.csv"
+    test20(fileName)
     # data1= ver8M250(fileName)
     # data2 =ver8(fileName)
     # data3= pd.merge(data1, data2, on=["b"])
@@ -374,8 +401,8 @@ if __name__ == '__main__':
     # currentP(fileName)
     # draw(fileName,'20180111')
     # bankCurrentP()
-    fileName = r"getAmt20180126132842ver8M250.cvs"
-    test20(fileName)
+    # fileName = r"getAmt20180126132842ver8M250.cvs"
+    # test20(fileName)
 
 # 603986 300657 300701 300678
 
