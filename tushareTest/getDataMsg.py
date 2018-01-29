@@ -7,7 +7,7 @@ import pandas as pd
 import tushare as ts
 from matplotlib import style
 
-# import tangguo.gongshi as gongshi
+import tangguo.gongshi as gongshi
 
 dir = "./data"
 
@@ -246,7 +246,7 @@ def currentP(fileName):
 
     # print(df.info())
     print(df[['name','code','price','price1','amt','rate','rate1']])
-    print(df[['rate']].head(10).fillna(0).apply(sum)/10.0)
+    print(df[['rate']].head(5).fillna(0).apply(sum)/5.0)
 
 def bankCurrentP():
     aa =['601398','601288','601939','601988']
@@ -329,10 +329,65 @@ def ver8M250(fileName ):
     print(data.head(20))
     return data
 
+
+def test20(fileName ):
+    otherStyleTime = datetime.datetime.now().strftime("%Y%m%d")
+    df = pd.read_csv(fileName)
+    codeList = np.array(df.code).tolist()
+
+    name = np.array(df.name).tolist()
+    for index, code in enumerate(codeList):
+        if len(str(code)) == 1:
+            code = "00000%s" % (code)
+        if len(str(code)) == 3:
+            code = "000%s" % (code)
+        if len(str(code)) == 4:
+            code = "00%s" % (code)
+        if len(str(code)) == 2:
+            code = "0000%s" % (code)
+        fileName = r"data\simple\%s-%s.csv" % (code, otherStyleTime)
+        # print(fileName)
+        df = pd.read_csv(fileName)
+
+        if df.shape[0] < 250:
+            continue
+        print(name[index],code)
+        # test = test1(df,code,name[index])
+        # test.trade()
+        # test.test()
+        from tushareTest.drawKLine import draw
+        draw(fileName, code, name[index])
+
+def drawAll(fileName ):
+    otherStyleTime = datetime.datetime.now().strftime("%Y%m%d")
+    # otherStyleTime = "20180128"
+    df = pd.read_csv(fileName)
+    codeList = np.array(df.code).tolist()
+    aa = []
+    name = np.array(df.name).tolist()
+    for index, code in enumerate(codeList):
+        if len(str(code)) == 1:
+            code = "00000%s" % (code)
+        if len(str(code)) == 3:
+            code = "000%s" % (code)
+        if len(str(code)) == 4:
+            code = "00%s" % (code)
+        if len(str(code)) == 2:
+            code = "0000%s" % (code)
+        try:
+            fileName = r"data\simple\%s-%s.csv" % (code, otherStyleTime)
+            # print(fileName)
+
+            draw(fileName, code, name[index])
+        except Exception as e:
+            print(index, code, "error", e)
+
+
+
 if __name__ == '__main__':
-    todayAll()
-    # fileName = r"data\todayAll\20180122151532.csv"
-    # data1= ver8M250(fileName)
+    # todayAll()
+    fileName = r"data\todayAll\20180122151532.csv"
+    data1= ver8M250(fileName)
     # data2 =ver8(fileName)
     # data3= pd.merge(data1, data2, on=["b"])
     # print(data3)
