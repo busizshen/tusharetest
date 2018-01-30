@@ -25,8 +25,8 @@ def loopGetCsv():
         for file in files:
             filename = '%s/%s' % (root, file)
             code = file[7:13]
-            readAllCsvToGetData(code,filename)
-    dict1 = sorted(dict.items(), key=lambda item: item[1], reverse=1)
+            calcStandardDeviation(code,filename)
+    dict1 = sorted(dict.items(), key=lambda item: item[1])
     return dict1
 
 
@@ -46,13 +46,49 @@ def readAllCsvToGetData(code,filename):
 
 # 确定分析因子
 def calcCPFluctuate(df):
-    # 计算收盘价格变动的 加速度
     shape0 = df.shape[0]
     if shape0 < 10 :
         acceleration = 0
     else:
         acceleration = (df['close'][0]-df['close'][10])/df['close'][0]
     return acceleration
+
+def calcGeneWl2(df):
+    # 先计算10短上涨基率的倒数
+    shape0 = df.shape[0]
+    if shape0 < 10:
+        acceleration = 0
+    else:
+        acceleration = df['close'][0]/(df['close'][0] - df['close'][10])
+
+    # 再计算标准差
+    col = df.iloc[:,0]
+    arrs = col.values
+    acceleration1 = np.std(arrs,ddof=1)
+
+    #np.array(df.close).tolist()
+
+    # 计算两数的积  积越小说明越好
+    acceleration2 = acceleration * acceleration1
+    return acceleration2
+
+
+
+# 计算标准差（用来分析股票这一段时间区间内的离散程度）
+def calcStandardDeviation(code,filename):
+    df = pd.read_csv(filename,index_col='date')
+    # 按照索引来进行排序
+    df = df.sort_index(ascending=False)
+    df = df[['close']]
+
+    print(code)
+    # 用所有的收盘价格计算标准差 与 10短上涨基率的倒数  乘积越小，说明上涨越快 越稳定
+    gene = calcGeneWl2(df)
+    if gene <= 0:
+        gene = 9999
+    # 向字典中加数据
+    dict[code] = gene
+
 
 if __name__ == '__main__':
     getTopTenShare()
