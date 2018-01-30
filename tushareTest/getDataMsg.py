@@ -389,15 +389,16 @@ def drawAll(fileName ):
 
 if __name__ == '__main__':
     # todayAll()
+
     fileName = r"data\todayAll\20180128095320.csv"
-    test20(fileName)
-    # data1= ver8M250(fileName)
+    data1= ver8M250(fileName)
+    # test20(fileName)
     # data2 =ver8(fileName)
     # data3= pd.merge(data1, data2, on=["b"])
     # print(data3)
     # data3.to_csv("data3.cvs", encoding='utf-8')
     # jiaolongmairuList(fileName,'20180119')
-    # fileName = r"getAmt20180126132842ver8M250.cvs"
+    # fileName = r"getAmt20180128135600ver8M250.cvs"
     # currentP(fileName)
     # draw(fileName,'20180111')
     # bankCurrentP()

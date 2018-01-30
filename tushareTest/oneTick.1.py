@@ -1,43 +1,22 @@
-import numpy as np
-import matplotlib.pyplot as plt
-import matplotlib.font_manager
-from sklearn import svm
-import tushare as ts
-import pandas as pd
-import numpy as np
 import datetime
-from pandas_datareader import data as web
 import math
+
 import matplotlib.pyplot as plt
+import numpy as np
+import pandas as pd
+import tushare as ts
 from matplotlib import style
-from sklearn.model_selection import cross_val_score
-from sklearn import preprocessing, cross_validation, svm
+from sklearn import preprocessing, cross_validation
 from sklearn.linear_model import LinearRegression
 
-# date1=datetime.timedelta(days = -100)
-# print((datetime.datetime.now() - datetime.timedelta(days = 100)).strftime("%Y-%m-%d"))
 
-# pd=ts.get_concept_classified()
 
-# hs300=ts.get_hs300s()
-# hs300.to_csv('hs300.csv',encoding='utf-8')
-# print(hs300)
-# zz50=ts.get_sz50s()
-# hs300.to_csv('zz50.csv',encoding='utf-8')
-
-# lines = pd.read_csv('hs300.csv',index_col=0)
-# print(lines)
-
-# 002230
-# pp = ts.get_hist_data('600848')
-# pp.to_csv('600848.csv',encoding='utf-8')
 def getData(num):
     otherStyleTime = datetime.datetime.now().strftime("%Y%m%d%H%M%S")
     pp = ts.get_hist_data(num)
     # pp=pp[::-1]
     pp.to_csv('%s-%s.csv'%(num,otherStyleTime),encoding='utf-8')
 
-# getData('601318')
 
 def trainData(fileName):
     df = pd.read_csv(fileName,index_col='date')
@@ -122,6 +101,6 @@ def trainData(fileName):
     df['Forecast'].plot()
     plt.show()
 # getData('600887')
-trainData('600887-20180102134413.csv')
+trainData(r'D:\PycharmProjects\tusharetest\tushareTest\data\simple\000002-20180108.csv')
 
 
