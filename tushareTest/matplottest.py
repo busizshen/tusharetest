@@ -50,7 +50,7 @@ def trainData(fileName):
     return X_train, X_test, y_train ,y_test,df
 # X_train, Y_train, y_train ,y_test,df=trainData(r'../tushareTest/data/002183-20171027180408.csv')
 
-df = pd.read_csv("./data/002049-20171124161837.csv",index_col='date')
+df = pd.read_csv("D:/PycharmProjects/tushare/tushareTest/data/002183-20171027180408.csv",index_col='date')
 df=df.iloc[0:3,0:5]
 print(df.shape)
 #
