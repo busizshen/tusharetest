@@ -1,0 +1,12 @@
+.ipynb_checkpoints
+.idea
+__pycache__
+*.pyc
+.DS_Store
+klab*.png
+MNIST_data
+tb
+Untitled*.ipynb
+.ropeproject
+xlab*
+logs
