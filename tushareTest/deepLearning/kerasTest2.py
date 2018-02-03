@@ -2,6 +2,9 @@ import tensorflow as tf
 import numpy as np
 import matplotlib.pyplot as plt #python的结果可视化模块
 
+
+# tensorboard --logdir=./tushareTest/deepLearning/logs
+
 """定义一个添加神经层的函数
     inputs：输入数据
     in_size：输入神经元的个数
