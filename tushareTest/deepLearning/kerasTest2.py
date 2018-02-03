@@ -1,160 +1,91 @@
-#!/usr/bin/env python3
-# -*- coding: utf-8 -*-
-
-import datetime
-import os
-
-# import matplotlib
-import matplotlib.pyplot as plt
+import tensorflow as tf
 import numpy as np
-import pandas as pd
-from keras.layers.core import Dense, Activation
-from keras.models import Sequential
-from keras.models import load_model
-from matplotlib.finance import candlestick_ohlc
-from matplotlib.pylab import date2num
-from numpy import row_stack, column_stack
-from pandas import DataFrame
-import tushare as ts
+import matplotlib.pyplot as plt #python的结果可视化模块
 
-class test1 :
-    def __init__(self, df,code,name):
-        # df=ts.get_hist_data('300598',start='2016-06-15',end='2018-01-24')
-        self.df = df
-        self.name = name
-        self.code =code
-        df = pd.read_csv(fileName, index_col='date')
-        df = df[::-1]
-        dd=df[['volume','close']]
-
-
-
-#-*- coding: utf-8 -*-
-#建立、训练多层神经网络，并完成模型的检验
-#from __future__ import print_function
-    def trade(self):
-        data_train=self.gettrainData()
-        data_mean = data_train.mean()
-        data_std = data_train.std()
-        data_train1 = (data_train-data_mean)/5  #数据标准化
-
-        y_train = data_train1.iloc[:,120:140].as_matrix() #训练样本标签列
-        print(y_train.shape)
-        x_train = data_train1.iloc[:,0:120].as_matrix() #训练样本特征
-        print(x_train.shape)
-        #y_test = data_test.iloc[:,4].as_matrix() #测试样本标签列
-
-        model = self.getModel()
-
-        model.fit(x_train, y_train, epochs = 100, batch_size = 8) #训练模型
-        model.save(self.modelName) #保存模型参数
-
-    def gettrainData(self):
-        inputfile1 = 'fg.xls'  # 训练数据
-        data_train = pd.read_excel(inputfile1)  # 读入训练数据(由日志标记事件是否为洗浴)
-        return data_train
-
-    def getModel(self):
-        boo = os.path.exists(self.modelName)
-        model = Sequential()  # 建立模型
-        if boo == False:
-
-            model.add(Dense(input_dim=120, output_dim=240))  # 添加输入层、隐藏层的连接
-            model.add(Activation('relu'))  # 以Relu函数为激活函数
-            model.add(Dense(input_dim=240, output_dim=120))  # 添加隐藏层、隐藏层的连接
-            model.add(Activation('relu'))  # 以Relu函数为激活函数
-            model.add(Dense(input_dim=120, output_dim=120))  # 添加隐藏层、隐藏层的连接
-            model.add(Activation('relu'))  # 以Relu函数为激活函数
-            model.add(Dense(input_dim=120, output_dim=20))  # 添加隐藏层、输出层的连接
-            model.add(Activation('sigmoid'))  # 以sigmoid函数为激活函数
-            # 编译模型，损失函数为binary_crossentropy，用adam法求解
-            model.compile(loss='mean_squared_error', optimizer='adam')
+"""定义一个添加神经层的函数
+    inputs：输入数据
+    in_size：输入神经元的个数
+    out_size：输出神经元的个数
+    activation_function：激活函数
+"""
+def add_layer(inputs, in_size, out_size, n_layer, activation_function=None):
+    layer_name = 'layer%s' % n_layer
+    with tf.name_scope(layer_name):
+        with tf.name_scope("wights"):
+            Weights = tf.Variable(tf.random_normal([in_size, out_size]), name='W') #定义权重矩阵
+            #tf.summary.histogram用于保存变量的变化
+            tf.summary.histogram(layer_name+'/weights', Weights)
+        with tf.name_scope("biases"):
+            biases = tf.Variable(tf.zeros([1, out_size]) + 0.1, name='b')#定义偏置
+            tf.summary.histogram(layer_name + '/biases', biases)
+        with tf.name_scope("Wx_plus_b"):
+            Wx_plus_b = tf.matmul(inputs, Weights) + biases #预测出的值
+        if activation_function is None:
+            outputs = Wx_plus_b #线性激活
         else:
-            model = load_model(self.modelName)
-        return model
+            outputs = activation_function(Wx_plus_b) #非线性激活
+        tf.summary.histogram(layer_name + '/outputs', outputs)
+        return outputs
 
-    def test(self):
-        model = self.getModel()
-        inputfile2='gg.xls' #预测数据
-        pre = pd.read_excel(inputfile2)
-        data_train=self.gettrainData()
-        data_mean = data_train.mean()
+"""创建数据"""
+#定义输入，linspace产生等差数列，加上数据的维度,定义输入数据为300个例子
+x_data = np.linspace(-1, 1, 300)[:, np.newaxis]
+# print(x_data.shape)
+noise = np.random.normal(0, 0.05, x_data.shape) #定义噪声点
+y_data = np.square(x_data) - 0.5 + noise # y=x_data*x_data - 0.5
 
-        pre_mean = data_mean[0:120]
-        pre_std = pre.std()
-        pre1 = (pre-pre_mean)/5  #数据标准化
+"""定义网络
+    输入层：1个神经元（使用输入的一个元素）
+    隐藏层：定义10个神经元
+    输出层：1个神经元（1个输入对应一个输出）
+"""
+#定义命名空间，使用tensorboard进行可视化
+with tf.name_scope("inputs"):
+    xs = tf.placeholder(tf.float32, [None, 1], name="x_input") #模型的输入x值
+    ys = tf.placeholder(tf.float32, [None, 1], name="y_input") #模型的输入y值
 
-        pre2 = pre1.iloc[:,0:120].as_matrix() #预测样本特征
-        r = pd.DataFrame(model.predict(pre2))
-        rt=r*5+data_mean[120:140].as_matrix()
-        # print(rt.round(2))
+#隐藏层
+l1 = add_layer(xs, 1, 10, n_layer=1, activation_function=tf.nn.relu)
+#输出层
+prediction = add_layer(l1, 10, 1, n_layer=2, activation_function=None)
 
-        # rt.to_excel('rt.xls')
-        #print(r.values@data_train.iloc[:,116:120].std().values+data_mean[116:120].as_matrix())
-        a=list(self.df.index[0:-1])
-        from matplotlib import dates as mdates
-        import datetime as dt
-        print(a[0])
-        b=a[0]
-        b = pd.to_datetime(a[0], format='%Y-%m-%d')
-        b = mdates.date2num(b)
-        # daysreshape['date'] = mdates.date2num(daysreshape['date'].astype(dt.date))
-        # c= datetime.datetime.strptime(b,'%Y-%m-%d')
-        d = b
-        c1=[d+i+1 for i in range(5)]
-        c2=np.array([c1])
-        r1=rt.values.flatten()
-        r2=r1[0:4]
-        for i in range(4):
-            r3=r1[i*4+4:i*4+8]
-            r2=row_stack((r2,r3))
-        c3=column_stack((c2.T,r2))
-        r5=DataFrame(c3)
-        if len(c3) == 0:
-            raise SystemExit
-        fig, ax = plt.subplots()
-        fig.subplots_adjust(bottom=0.2)
+#损失函数
+with tf.name_scope("loss"):
+    loss = tf.reduce_mean(tf.reduce_sum(tf.square(ys-prediction),
+                        reduction_indices=[1]))
+    tf.summary.scalar('loss', loss) #用于观察常量的变化
+#模型训练
+with tf.name_scope("train"):
+    train_step = tf.train.GradientDescentOptimizer(0.1).minimize(loss)
 
-        candlestick_ohlc(ax, c3, width=0.6, colorup='r', colordown='g')
-        ax.xaxis_date()
-        ax.autoscale_view()
-        plt.setp(plt.gca().get_xticklabels(), rotation=45, horizontalalignment='right')
+init = tf.global_variables_initializer() #初始化所有变量
+with tf.Session() as sess:
+    merged = tf.summary.merge_all()
+    writer = tf.summary.FileWriter("logs/", sess.graph) #保存神经网络的所有的信息，方便浏览器访问
+    sess.run(init)
 
-        ax.grid(True)
-        plt.title(self.code)
-        # plt.show()
-        otherStyleTime1 = datetime.datetime.now().strftime("%Y%m%d%H%M%S")
-        fig = plt.gcf()
-        fig.savefig("./img/code-%s-%s-%s.png"%(self.code,self.name,otherStyleTime1))
+    for i in range(1001):
+        sess.run(train_step, feed_dict={xs: x_data, ys: y_data})
+        if i % 50 == 0:#每训练50次，合并一下结果
+            result = sess.run(merged, feed_dict={xs: x_data, ys: y_data})
+            writer.add_summary(result, i)
+    """
+    fig = plt.figure() #定义一个图片框
+    ax = fig.add_subplot(1, 1, 1)
+    ax.scatter(x_data, y_data) #输出样本值
+    plt.ion() #防止plt后程序暂停
+    plt.show() #一次输出，将程序暂停
 
-# df=ts.get_hist_data('300598',start='2016-06-15',end='2018-01-24')
-# date,open,high,close,low,volume,price_change,p_change,ma5,ma10,ma20,v_ma5,v_ma10,v_ma20,turnover
-df = pd.read_csv(r"D:\PycharmProjects\tusharetest\tushareTest\data\simple\000001-20180129.csv")
-# print(df.close.describe())
-print(df.shape)
-index = 0
-length=200
-data_length=df.shape[0]
-train_size=data_length-length
-p=pd.DataFrame()
-dp=pd.DataFrame()
-if data_length<400:
-    pass
-else:
-    for i in range(train_size):
-        dp["close"]=df["close"][i:length+i]/df["close"].max()
-        dp["volume"]=df["volume"][i:length+i]/df["volume"].max()
-        # p["volume"]=df["volume"]/df["volume"].max()
-        print(i,"-------",p)
-        if i==0:
-            p=pd.DataFrame(dp[["close","volume"]].values.flatten())
-            p=p.values.flatten()
-        else:
-            p.tolist().append(dp[["close", "volume"]].values.flatten())
-# for i in range(pp.shape[0]):
-print(pd.DataFrame(p).shape)
-
-# df=df[::-1]
-# df.index = df['date'].tolist()
-# test = test1(df)
-# test.trade()
+    for i in range(1001):
+        sess.run(train_step, feed_dict={xs:x_data,ys:y_data})
+        if i % 50 == 0:
+            # print(i, sess.run(loss, feed_dict={xs:x_data,ys:y_data}))
+            try:
+                ax.lines.remove(lines[0])  # 去除lines的第一个线条
+            except Exception:
+                pass
+            prediction_value = sess.run(prediction, feed_dict={xs:x_data})
+            lines = ax.plot(x_data, prediction_value, 'r-', lw=5) #将预测的值plot上去
+            plt.gca()
+            plt.pause(0.1) #每0.1秒输出一次
+    """
