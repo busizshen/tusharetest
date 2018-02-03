@@ -3,7 +3,7 @@ import configparser
 
 
 
-r = redis.Redis(host='192.168.50.8',port=7000,db=0,password='W3qIOFe6DFqowwXaOgnh8nlR9QTc6DXR4P6pi1dHthVLbhnvDiVe5PCMak74j0Yt')
+r = redis.Redis(host='',port=7000,db=0,password='')
 
 CONFIG = configparser.ConfigParser()
 CONFIG.read("system.ini")

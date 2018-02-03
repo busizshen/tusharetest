@@ -332,6 +332,41 @@ def ver8M250(fileName ):
     print(data.head(20))
     return data
 
+def teststd(fileName ):
+    serviceNmae='ver8M250'
+    # otherStyleTime = datetime.datetime.now().strftime("%Y%m%d")
+    otherStyleTime = "20180129"
+    otherStyleTime1 = datetime.datetime.now().strftime("%Y%m%d%H%M%S")
+    df = pd.read_csv(fileName)
+    codeList = np.array(df.code).tolist()
+    aa = []
+    for index, code in enumerate(codeList):
+        if len(str(code)) == 1:
+            code = "00000%s" % (code)
+        if len(str(code)) == 3:
+            code = "000%s" % (code)
+        if len(str(code)) == 4:
+            code = "00%s" % (code)
+        if len(str(code)) == 2:
+            code = "0000%s" % (code)
+        try:
+            fileName = r"data\simple\%s-%s.csv" % (code, otherStyleTime)
+            # print(fileName)
+            df = pd.read_csv(fileName)
+            # test = test1(df)
+            # test.trade()
+            print(df.shape)
+            if df.shape[0]<250:
+                continue
+            aa.append(df["close"]/df['close'].min())
+        except Exception as e:
+            print(index, code, "error", e)
+
+
+    data = pd.DataFrame(aa)
+    data = data.sort_values(0, ascending=False)
+    data.to_csv("test%s.cvs"%(otherStyleTime1), encoding='utf-8')
+    return data
 
 def test20(fileName ):
     otherStyleTime = datetime.datetime.now().strftime("%Y%m%d")
@@ -388,12 +423,12 @@ def drawAll(fileName ):
 
 
 if __name__ == '__main__':
-    # todayAll()
+    todayAll()
 
     fileName = r"data\todayAll\20180128095320.csv"
-    data1= ver8M250(fileName)
+    # data1= teststd(fileName)
     # test20(fileName)
-    # data2 =ver8(fileName)
+    data2 =ver8(fileName)
     # data3= pd.merge(data1, data2, on=["b"])
     # print(data3)
     # data3.to_csv("data3.cvs", encoding='utf-8')

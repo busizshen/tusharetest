@@ -15,7 +15,7 @@ from matplotlib.finance import candlestick_ohlc
 from matplotlib.pylab import date2num
 from numpy import row_stack, column_stack
 from pandas import DataFrame
-
+import tushare as ts
 
 class test1 :
     def __init__(self, df,code,name):
@@ -23,29 +23,10 @@ class test1 :
         self.df = df
         self.name = name
         self.code =code
-        dd=df[['open','high','low','close']]
-        #print(dd.values.shape[0])
-        dd1=dd .sort_index()
-        print("dd1",dd1.shape)
-        dd2=dd1.values.flatten()
-        print("dd2",dd2.shape)
-        g1=dd2[::-1]
-        print("g1",g1.shape)
-        g2=g1[0:120]
-        print("g2",g2.shape)
-        g3=g2[::-1]
-        print("g3",g3.shape)
-        gg=DataFrame(g3)
-        gg.T.to_excel('gg.xls')
-        self.modelName='./model/%s.model'%self.code
-        g=dd2[0:140]
-        for i in range(dd.values.shape[0]-34):
-            s=dd2[i*4:i*4+140]
-            g=row_stack((g,s))
-        fg=DataFrame(g)
-        print("fg------", fg.shape)
-        # print(fg)
-        fg.to_excel('fg.xls')
+        df = pd.read_csv(fileName, index_col='date')
+        df = df[::-1]
+        dd=df[['volume','close']]
+
 
 
 #-*- coding: utf-8 -*-
@@ -145,3 +126,35 @@ class test1 :
         otherStyleTime1 = datetime.datetime.now().strftime("%Y%m%d%H%M%S")
         fig = plt.gcf()
         fig.savefig("./img/code-%s-%s-%s.png"%(self.code,self.name,otherStyleTime1))
+
+# df=ts.get_hist_data('300598',start='2016-06-15',end='2018-01-24')
+# date,open,high,close,low,volume,price_change,p_change,ma5,ma10,ma20,v_ma5,v_ma10,v_ma20,turnover
+df = pd.read_csv(r"D:\PycharmProjects\tusharetest\tushareTest\data\simple\000001-20180129.csv")
+# print(df.close.describe())
+print(df.shape)
+index = 0
+length=200
+data_length=df.shape[0]
+train_size=data_length-length
+p=pd.DataFrame()
+dp=pd.DataFrame()
+if data_length<400:
+    pass
+else:
+    for i in range(train_size):
+        dp["close"]=df["close"][i:length+i]/df["close"].max()
+        dp["volume"]=df["volume"][i:length+i]/df["volume"].max()
+        # p["volume"]=df["volume"]/df["volume"].max()
+        print(i,"-------",p)
+        if i==0:
+            p=pd.DataFrame(dp[["close","volume"]].values.flatten())
+            p=p.values.flatten()
+        else:
+            p.tolist().append(dp[["close", "volume"]].values.flatten())
+# for i in range(pp.shape[0]):
+print(pd.DataFrame(p).shape)
+
+# df=df[::-1]
+# df.index = df['date'].tolist()
+# test = test1(df)
+# test.trade()
