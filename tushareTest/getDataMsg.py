@@ -9,7 +9,7 @@ from matplotlib import style
 from tushareTest.kerasTest import test1
 import tangguo.gongshi as gongshi
 
-dir = "./data"
+dir = "D:\PycharmProjects\data"
 
 
 def dfvolume(fileName):
@@ -52,6 +52,7 @@ def getCZNL(nian,ji):
 def getTodayAll():
     otherStyleTime = datetime.datetime.now().strftime("%Y%m%d%H%M%S")
     fileName='%s/todayAll/%s.csv'%(dir,otherStyleTime)
+    print(fileName)
     pp = ts.get_today_all()
     if not os.path.exists('%s/todayAll'%(dir)):
         os.makedirs('%s/todayAll'%(dir))
@@ -165,7 +166,7 @@ def ver8(fileName):
         if len(str(code)) == 2:
             code = "0000%s" % (code)
         try:
-            fileName = r"data\simple\%s-%s.csv" % (code, otherStyleTime)
+            fileName = r"%s\simple\%s-%s.csv" % (dir,code, otherStyleTime)
             # print(fileName)
             df = pd.read_csv(fileName)
             print(df.shape)
@@ -203,7 +204,7 @@ def jiaolongmairuList(fileName,otherStyleTime):
         if len(str(code)) == 2:
             code = "0000%s" % (code)
         try:
-            fileName = r"data\simple\%s-%s.csv" % (code, otherStyleTime)
+            fileName = r"%s\simple\%s-%s.csv" % (dir,code, otherStyleTime)
             # print(fileName)
             df = pd.read_csv(fileName)
             print(df.shape)
@@ -306,7 +307,7 @@ def ver8M250(fileName ):
         if len(str(code)) == 2:
             code = "0000%s" % (code)
         try:
-            fileName = r"data\simple\%s-%s.csv" % (code, otherStyleTime)
+            fileName = r"%s\simple\%s-%s.csv" % (dir,code, otherStyleTime)
             # print(fileName)
             df = pd.read_csv(fileName)
             # test = test1(df)
@@ -350,7 +351,7 @@ def teststd(fileName ):
         if len(str(code)) == 2:
             code = "0000%s" % (code)
         try:
-            fileName = r"data\simple\%s-%s.csv" % (code, otherStyleTime)
+            fileName = r"%s\simple\%s-%s.csv" % (dir,code, otherStyleTime)
             # print(fileName)
             df = pd.read_csv(fileName)
             # test = test1(df)
@@ -383,7 +384,7 @@ def test20(fileName ):
             code = "00%s" % (code)
         if len(str(code)) == 2:
             code = "0000%s" % (code)
-        fileName = r"data\simple\%s-%s.csv" % (code, otherStyleTime)
+        fileName = r"%s\simple\%s-%s.csv" % (dir,code, otherStyleTime)
         # print(fileName)
         df = pd.read_csv(fileName)
 
@@ -396,9 +397,7 @@ def test20(fileName ):
         from tushareTest.drawKLine import draw
         draw(fileName, code, name[index])
 
-def drawAll(fileName ):
-    otherStyleTime = datetime.datetime.now().strftime("%Y%m%d")
-    # otherStyleTime = "20180128"
+def drawAll(fileName ,otherStyleTime):
     df = pd.read_csv(fileName)
     codeList = np.array(df.code).tolist()
     aa = []
@@ -406,36 +405,72 @@ def drawAll(fileName ):
     for index, code in enumerate(codeList):
         if len(str(code)) == 1:
             code = "00000%s" % (code)
-        if len(str(code)) == 3:
+        elif len(str(code)) == 3:
             code = "000%s" % (code)
-        if len(str(code)) == 4:
+        elif len(str(code)) == 4:
             code = "00%s" % (code)
-        if len(str(code)) == 2:
+        elif len(str(code)) == 2:
             code = "0000%s" % (code)
+        elif len(str(code)) == 5:
+            code = "0%s" % (code)
         try:
-            fileName = r"data\simple\%s-%s.csv" % (code, otherStyleTime)
+            fileName = r"%s\simple\%s-%s.csv" % (dir,code, otherStyleTime)
             # print(fileName)
-
             draw(fileName, code, name[index])
         except Exception as e:
             print(index, code, "error", e)
 
+def tradeAll(fileName,otherStyleTime):
+    df = pd.read_csv(fileName)
+    codeList = np.array(df.code).tolist()
+    aa = []
+    name = np.array(df.name).tolist()
+    for index, code in enumerate(codeList):
+        if len(str(code)) == 3:
+            code = "000%s" % (code)
+        if len(str(code)) == 1:
+            code = "00000%s" % (code)
+        if len(str(code)) == 4:
+            code = "00%s" % (code)
+        if len(str(code)) == 2:
+            code = "0000%s" % (code)
+        aa.append(str(code))
+        dir1 = '%s/simple' % (dir)
+        fileName = '%s/%s-%s.csv' % (dir1, code, otherStyleTime)
+        tradeOne(fileName, code, name[index])
+        from tushareTest.drawKLine import draw
+        draw(fileName, code, name[index])
 
+def tradeOne(fileName,code,name ):
+    df = pd.read_csv(fileName)
+    test = test1(df,code,name)
+    test.trade()
+    test.test()
 
 if __name__ == '__main__':
-    todayAll()
+    # df = getTodayAll()
+    # df.to_excel("today.xls")
+    code= "601398"
+    otherStyleTime = datetime.datetime.now().strftime("%Y%m%d")
+    df = ts.get_today_ticks(code)
+    df.to_excel("%s-%s.xls"%(code,otherStyleTime),encoding="utf-8")
+    # todayAll()
 
-    fileName = r"data\todayAll\20180128095320.csv"
+    # fileName = r"%s\todayAll\20180205154614.csv"%(dir)
     # data1= teststd(fileName)
     # test20(fileName)
-    data2 =ver8(fileName)
+    # data2 =ver8(fileName)
     # data3= pd.merge(data1, data2, on=["b"])
     # print(data3)
-    # data3.to_csv("data3.cvs", encoding='utf-8')
+    # data3.to_csv("%s3.cvs", encoding='utf-8')
     # jiaolongmairuList(fileName,'20180119')
-    # fileName = r"getAmt20180128135600ver8M250.cvs"
+    fileName = r"getAmt20180205161141ver8.cvs"
+    # otherStyleTime = datetime.datetime.now().strftime("%Y%m%d")
+
+    # otherStyleTime = "20180205"
     # currentP(fileName)
-    # draw(fileName,'20180111')
+    # tradeAll(fileName,otherStyleTime)
+    # drawAll(fileName,otherStyleTime)
     # bankCurrentP()
     # fileName = r"getAmt20180126132842ver8M250.cvs"
     # test20(fileName)

@@ -1,129 +1,119 @@
-import numpy as np
-import matplotlib.pyplot as plt
-import matplotlib.font_manager
-from sklearn import svm
-import tushare as ts
 import pandas as pd
 import numpy as np
-import datetime
-from pandas_datareader import data as web
-import math
 import matplotlib.pyplot as plt
-from matplotlib import style
-from sklearn.model_selection import cross_val_score
-from sklearn import preprocessing, cross_validation, svm
-from sklearn.linear_model import LinearRegression,LassoLarsIC
-from sklearn.externals import joblib
+from matplotlib.finance import candlestick_ohlc
+from matplotlib.dates import DateFormatter, WeekdayLocator, DayLocator, MONDAY, date2num
 
-def getData(num):
-    otherStyleTime = datetime.datetime.now().strftime("%Y%m%d%H%M%S")
-    pp = ts.get_hist_data(num)
-    pp.to_csv('data/%s-%s.csv'%(num,otherStyleTime),encoding='utf-8')
 
-def do_something(x):
-    x= lambda x: 1 if x > 0 else (-1 if x < 0 else 0)
-    print(x)
-    return x
-def trainData(fileName):
-    df = pd.read_csv(fileName,index_col='date')
 
-    df=df.sort_index()
-    df = df[['open', 'high', 'close', 'low', 'volume', 'price_change' ,'p_change', 'ma5', 'ma10', 'ma20' ,'v_ma5', 'v_ma10', 'v_ma20', 'turnover']]
 
-    df = df[['open', 'high', 'low', 'close', 'volume']]
-    df['HL_PCT'] = (df['high'] - df['low']) / df['close'] * 100.0
-    df['PCT_change'] = (df['close'] - df['open']) / df['open'] * 100.0
-    df = df[['close', 'HL_PCT', 'PCT_change', 'volume']]
-    # print(df.head())
-    forecast_col = 'close'
-    df.fillna(value=-99999, inplace=True)
-    # forecast_out = int(math.ceil(0.01 * len(df)))
-    forecast_out = 1
-    # ??forecast_out???
-    df['label'] = df[forecast_col].shift(-forecast_out)
 
-    print(df.shape)
-    print(df)
-    X = np.array(df.drop(['label'], 1))
+def pandas_candlestick_ohlc(stock_data, otherseries=None):
+    # 设置绘图参数，主要是坐标轴
+    mondays = WeekdayLocator(MONDAY)
+    alldays = DayLocator()
+    dayFormatter = DateFormatter('%d')
 
-    X = preprocessing.scale(X)
+    fig, ax = plt.subplots()
+    fig.subplots_adjust(bottom=0.2)
+    if stock_data.index[-1] - stock_data.index[0] < pd.Timedelta('730 days'):
+        weekFormatter = DateFormatter('%b %d')
+        ax.xaxis.set_major_locator(mondays)
+        ax.xaxis.set_minor_locator(alldays)
+    else:
+        weekFormatter = DateFormatter('%b %d, %Y')
+    ax.xaxis.set_major_formatter(weekFormatter)
+    ax.grid(True)
 
-    X_lately = X[-forecast_out:]
-    X = X[:-forecast_out]
-    df.dropna(inplace=True)
-    print(X)
-    print(X_lately)
-    y = np.array(df['label'])
-    # print(y)
-    print(X.shape)
-    print(y.shape)
-    X_train, X_test, y_train, y_test = cross_validation.train_test_split(X, y, test_size=0.2)
+    # 创建K线图
+    stock_array = np.array(stock_data.reset_index()[['date', 'open', 'high', 'low', 'close']])
+    stock_array[:, 0] = date2num(stock_array[:, 0])
+    candlestick_ohlc(ax, stock_array, colorup="red", colordown="green", width=0.4)
 
-    clf = LassoLarsIC(max_iter=100)
-    clf.fit(X_train, y_train)
-    accuracy = clf.score(X_test, y_test)
-    joblib.dump(clf, "%s.m"%fileName)
-    print(accuracy,"---------score------")
+    # 可同时绘制其他折线图
+    if otherseries is not None:
+        for each in otherseries:
+            plt.plot(stock_data[each], label=each)
+        plt.legend()
 
-    forecast_set = clf.predict(X_lately)
+    ax.xaxis_date()
+    ax.autoscale_view()
+    plt.setp(plt.gca().get_xticklabels(), rotation=45, horizontalalignment='right')
 
-    print(forecast_out)
-    style.use('ggplot')
-    df['Forecast'] = np.nan
-    last_date = df.iloc[-1].name
-
-    date_time = datetime.datetime.strptime(last_date,'%Y-%m-%d')
-    last_unix = date_time.timestamp()
-    one_day = 86400
-    next_unix = last_unix + one_day
-    print(forecast_set)
-    for i in forecast_set:
-        next_date = datetime.datetime.fromtimestamp(next_unix)
-        next_unix += 86400
-        df.loc[next_date] = [np.nan for _ in range(len(df.columns) - 1)] + [i]
-    print(df.tail(forecast_out))
-
-    df['close'].plot()
-    df['Forecast'].plot()
     plt.show()
 
-def realData(fileName):
-    df = pd.read_csv(fileName,index_col='date')
-
-    # df=df.sort_index()
-    df = df[['open', 'high', 'close', 'low', 'volume', 'price_change' ,'p_change', 'ma5', 'ma10', 'ma20' ,'v_ma5', 'v_ma10', 'v_ma20', 'turnover']]
-
-    df = df[['open', 'high', 'low', 'close', 'volume']]
-    df['HL_PCT'] = (df['high'] - df['low']) / df['close'] * 100.0
-    df['PCT_change'] = (df['close'] - df['open']) / df['open'] * 100.0
-    df = df[['close', 'HL_PCT', 'PCT_change', 'volume']]
-    # print(df.head())
-    forecast_col = 'close'
-    df.fillna(value=-99999, inplace=True)
-    # forecast_out = int(math.ceil(0.01 * len(df)))
-    forecast_out = 1
-    # ??forecast_out???
-    df['label'] = df[forecast_col].shift(-forecast_out)
-
-    print(df.shape)
-    print(df)
-    X = np.array(df.drop(['label'], 1))
-
-    X = preprocessing.scale(X)
-
-    X_lately = X[0:1]
-    X = X[:-forecast_out]
-    df.dropna(inplace=True)
-    return X_lately
-
-# getData('002183')
-trainData('002183-20171024131142.csv')
+# plt.rcParams['figure.figsize'] = (10, 6)  # 设置绘图尺寸
 #
-# # clf.fit(X_train, y_train)
-# # accuracy = clf.score(X_test, y_test)
-# # print(accuracy,"---------score------")
+# # 读取数据
+stock = pd.read_csv(r'D:\PycharmProjects\data\simple\000001-20180205.csv',usecols=range(15), parse_dates=[0], index_col=0)
+stock = stock[::-1]  # 逆序排列
+# pandas_candlestick_ohlc(stock)
+# # print(stock.head())
 #
-# clf = joblib.load("002183-20171024131142.csv.m")
-# X_lately=realData("002183-20171024131142.csv");
-# forecast_set = clf.predict(X_lately)
-# print(forecast_set)
+# # print(stock.info())
+# print(stock.columns)
+# stock["close"].plot(grid=True)
+
+# stock['return'] = stock['close'] / stock.close.iloc[0]
+# stock['return'].plot(grid=True)
+
+# stock['p_change'].plot(grid=True).axhline(y=0, color='black', lw=2)
+
+# close_price = stock['close']
+# log_change = np.log(close_price) - np.log(close_price.shift(1))
+# log_change.plot(grid=True).axhline(y=0, color='black', lw=2)
+
+# small = stock[['close', 'price_change', 'ma20','volume', 'v_ma20', 'turnover']]
+# _ = pd.scatter_matrix(small)
+# small = stock[['close', 'price_change', 'ma20','volume', 'v_ma20']]
+# cov = np.corrcoef(small.T)
+
+# img = plt.matshow(cov,cmap=plt.cm.winter)
+# plt.colorbar(img, ticks=[-1,0,1])
+
+# stock[['close','volume']].plot(secondary_y='volume', grid=True)
+# ################雅虎数据########################
+import datetime
+import pandas_datareader.data as web
+
+# 设置股票数据的时间跨度
+start = datetime.datetime(2016, 10, 1)
+end = datetime.date.today()
+
+# 从yahoo中获取google的股价数据。
+goog = web.DataReader("GOOG", "yahoo", start, end)
+
+# 修改索引和列的名称，以适应本文的分析
+goog.index.rename('date', inplace=True)
+goog.rename(columns={'Open': 'open', 'High': 'high', 'Low': 'low', 'Close': 'close'}, inplace=True)
+goog.head()
+
+goog["ma5"] = np.round(goog["close"].rolling(window=5, center=False).mean(), 2)
+goog["ma20"] = np.round(goog["close"].rolling(window=20, center=False).mean(), 2)
+goog = goog['2017-01-01':]
+
+# pandas_candlestick_ohlc(goog, ['ma5', 'ma20'])
+
+
+goog['ma5-20'] = goog['ma5'] - goog['ma20']
+goog['diff'] = np.sign(goog['ma5-20'])
+goog['diff'].plot(ylim=(-2,2)).axhline(y=0, color='black', lw=2)
+goog['signal'] = np.sign(goog['diff'] - goog['diff'].shift(1))
+goog['signal'].plot(ylim=(-2,2))
+# ################雅虎数据########################
+
+
+trade = pd.concat([
+    pd.DataFrame({"price": goog.loc[goog["signal"] == -1, "close"],
+                  "operation": "Buy"}),
+    pd.DataFrame({"price": goog.loc[goog["signal"] == 1, "close"],
+                  "operation": "Sell"})
+])
+
+trade.sort_index(inplace=True)
+print(trade)
+
+plt.show()
+
+
+

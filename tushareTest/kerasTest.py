@@ -15,7 +15,7 @@ from matplotlib.finance import candlestick_ohlc
 from matplotlib.pylab import date2num
 from numpy import row_stack, column_stack
 from pandas import DataFrame
-
+from sklearn.preprocessing import MinMaxScaler
 
 class test1 :
     def __init__(self, df,code,name):
@@ -24,8 +24,11 @@ class test1 :
         self.name = name
         self.code =code
         dd=df[['open','high','low','close']]
+        scaler = MinMaxScaler(feature_range=(-1, 1))
+        dd = scaler.fit_transform(dd)
+        dd=pd.DataFrame(dd)
         #print(dd.values.shape[0])
-        dd1=dd .sort_index()
+        dd1=dd.sort_index()
         print("dd1",dd1.shape)
         dd2=dd1.values.flatten()
         print("dd2",dd2.shape)
@@ -37,12 +40,17 @@ class test1 :
         print("g3",g3.shape)
         gg=DataFrame(g3)
         gg.T.to_excel('gg.xls')
-        self.modelName='./model/%s.model'%self.code
+        # self.modelName='./model/%s.model'%self.code
+        self.modelName = './model/model.model'
         g=dd2[0:140]
-        for i in range(dd.values.shape[0]-34):
+        print("g--------",dd.shape)
+        print("g--------", dd2.shape)
+        for i in range(1,dd.values.shape[0]-34):
             s=dd2[i*4:i*4+140]
             g=row_stack((g,s))
+
         fg=DataFrame(g)
+        print(fg.head(2))
         print("fg------", fg.shape)
         # print(fg)
         fg.to_excel('fg.xls')
@@ -145,3 +153,8 @@ class test1 :
         otherStyleTime1 = datetime.datetime.now().strftime("%Y%m%d%H%M%S")
         fig = plt.gcf()
         fig.savefig("./img/code-%s-%s-%s.png"%(self.code,self.name,otherStyleTime1))
+
+# df = pd.read_csv(r"D:\PycharmProjects\data\simple\002554-20180205.csv")
+# test = test1(df,"","")
+# test.trade()
+# test.test()

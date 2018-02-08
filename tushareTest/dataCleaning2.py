@@ -45,7 +45,7 @@ def pandas_candlestick_ohlc(stock_data, otherseries=None):
 # plt.rcParams['figure.figsize'] = (10, 6)  # 设置绘图尺寸
 #
 # # 读取数据
-stock = pd.read_csv(r'D:\PycharmProjects\data\simple\601398-20180205.csv',usecols=range(15), parse_dates=[0], index_col=0)
+stock = pd.read_csv(r'D:\PycharmProjects\data\simple\000001-20180205.csv',usecols=range(15), parse_dates=[0], index_col=0)
 stock = stock[::-1]  # 逆序排列
 # pandas_candlestick_ohlc(stock)
 # # print(stock.head())
@@ -82,12 +82,7 @@ end = datetime.date.today()
 
 # 从yahoo中获取google的股价数据。
 # goog = web.DataReader("GOOG", "yahoo", start, end)
-
-# 修改索引和列的名称，以适应本文的分析
-# goog.index.rename('date', inplace=True)
-# goog.rename(columns={'Open': 'open', 'High': 'high', 'Low': 'low', 'Close': 'close'}, inplace=True)
-goog = pd.read_csv(r'D:\PycharmProjects\data\simple\601398-20180205.csv' )
-goog.head()
+goog = pd.read_csv(r'D:\PycharmProjects\data\simple\601398-20180205.csv',usecols=range(15), parse_dates=[0], index_col=0)
 
 goog["ma5"] = np.round(goog["close"].rolling(window=5, center=False).mean(), 2)
 goog["ma20"] = np.round(goog["close"].rolling(window=20, center=False).mean(), 2)
@@ -110,13 +105,20 @@ trade = pd.concat([
     pd.DataFrame({"price": goog.loc[goog["signal"] == 1, "close"],
                   "operation": "Sell"})
 ])
-
-
-
+trade1=pd.DataFrame({"price": goog.loc[goog["signal"] == -1, "close"],
+                  "operation": "Buy"})
+trade2=pd.DataFrame({"price": goog.loc[goog["signal"] == 1, "close"],
+                  "operation": "Sell"})
+# trade3=df = pd.merge(trade1, trade2, how='left', on='user_id')
+trade3 = pd.concat([trade1,trade2] , axis=1 )
+trade3=trade3.fillna(0)
 trade.sort_index(inplace=True)
-print(trade)
-goog[['close','volume']].plot(secondary_y='volume', grid=True)
-plt.show()
+print(trade3)
+trade3.to_excel("test.xls")
+# plt.show()
+
+# goog['20d-50d'] =goog['20d'] -apple['50d']
+# apple.tail()
 
 
 
