@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en"  style="height: 100%">
+<head>
+    <meta charset="UTF-8">
+    <title>学历和薪资关系图</title>
+    <script src="/static/jquery-1.12.0.min.js"></script>
+    <script src="/static/echarts.min.js"></script>
+</head>
+<body style="height: 100%">
+<div id="main" style="height: 100%"></div>
+<script>
+    $(function () {
+        $.ajax({
+            url:'/zwyx/xl',
+            type:'get',
+            dataType:'json',
+            success:function (returnData) {
+                if(returnData.status==1)
+                {
+                    myoption = {
+                        title: {
+                            text: '学历和薪资关系图',
+                            subtext: '北风网制作',
+                            sublink: 'http://www.ibeifeng.com',
+                            left: 'left'
+                        },
+                        tooltip : {
+                            trigger: 'axis',
+                            axisPointer : {            // 坐标轴指示器，坐标轴触发有效
+                                type : 'shadow'        // 默认为直线，可选为：'line' | 'shadow'
+                            }
+                        },
+                        legend: {
+                            data:['总职位数','平均薪资','最大薪资','最小薪资']
+                        },
+                        grid: {
+                            left: '3%',
+                            right: '4%',
+                            bottom: '3%',
+                            containLabel: true
+                        },
+                        xAxis : [
+                            {
+                                type : 'category',
+                                data : returnData.xl_list
+                            }
+                        ],
+                        yAxis : [
+                            {
+                                type : 'value'
+                            }
+                        ],
+                        series : [
+                            {
+                                name:'总职位数',
+                                type:'bar',
+                                data:returnData.count_zw
+                            },
+                            {
+                                name:'平均薪资',
+                                type:'bar',
+                                data:returnData.avg_zw
+                            },
+                            {
+                                name:'最大薪资',
+                                type:'bar',
+                                data:returnData.max_xz
+                            },
+                            {
+                                name:'最小薪资',
+                                type:'bar',
+                                data:returnData.min_xz
+                            }
+                        ]
+                    };
+                    var myChart = echarts.init(document.getElementById('main'));
+                    myChart.setOption(myoption);
+                }
+                else
+                {
+                    alert('暂无数据')
+                }
+            }
+        })
+
+    })
+</script>
+
+</body>
+</html>

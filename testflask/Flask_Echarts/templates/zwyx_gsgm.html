@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en"  style="height: 100%">
+<head>
+    <meta charset="UTF-8">
+    <title>公司规模和薪资关系图</title>
+    <script src="/static/jquery-1.12.0.min.js"></script>
+    <script src="/static/echarts.min.js"></script>
+</head>
+<body style="height: 100%">
+<div id="main" style="height: 100%"></div>
+<script>
+    $(function () {
+        $.ajax({
+            url:'/zwyx/gsgm',
+            type:'get',
+            dataType:'json',
+            success:function (returnData) {
+                if(returnData.status==1)
+                {
+                    waterMarkText=
+                    myoption = {
+                        title : {
+                        text: '公司规模和薪资关系图',
+                        subtext: '北风网制作',
+                            sublink: 'http://www.ibeifeng.com',
+                        x:'left'
+                    },
+                    tooltip : {
+                        trigger: 'item',
+                        formatter: "{a} <br/>{b} : {c} ({d}%)"
+                    },
+		        title:[{ text:'总职位数',x:'25%',y:'5%',textAlign:'center'},
+		        {text:'平均薪资',x:'75%',y:'5%',textAlign:'center'}],
+                    legend: {
+                        x : 'center',
+                        y : 'top',
+                        data:returnData.gsgm_list
+                    },
+                    toolbox: {
+                        show : true,
+                        feature : {
+                            mark : {show: true},
+                            dataView : {show: true, readOnly: false},
+                            magicType : {
+                                show: true,
+                                type: ['pie', 'funnel']
+                            },
+                            restore : {show: true},
+                            saveAsImage : {show: true}
+                        }
+                    },
+                    calculable : true,
+                    series : [
+                        {
+                            name:'总职位数',
+                            type:'pie',
+                            radius : [20, 200],
+                            center : ['25%', '50%'],
+                            roseType : 'radius',
+                            label: {
+                                normal: {
+                                    show: true
+                                },
+                                emphasis: {
+                                    show: true
+                                }
+                            },
+                            lableLine: {
+                                normal: {
+                                    show: true
+                                },
+                                emphasis: {
+                                    show: true
+                                }
+                            },
+                            data:returnData.count_zw
+                        },
+                        {
+                            name:'平均薪资',
+                            type:'pie',
+                            radius : [30, 200],
+                            center : ['75%', '50%'],
+                            roseType : 'area',
+                            data:returnData.avg_zw
+                        }
+                    ]
+                    };
+                    var myChart = echarts.init(document.getElementById('main'));
+                    myChart.setOption(myoption);
+                }
+                 else
+                {
+                    alert('暂无数据')
+                }
+            }
+        })
+
+    })
+</script>
+</body>
+</html>

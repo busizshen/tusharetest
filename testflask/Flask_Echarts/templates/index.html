@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Echarts+Mysql+Python项目案例</title>
+    <script src="/static/jquery-1.12.0.min.js"></script>
+    <style>
+        *
+        {
+            margin:0;
+            padding:0;
+        }
+        a{
+            cursor: pointer;
+        }
+        .active
+        {
+            color:orange;
+        }
+    </style>
+</head>
+<body>
+        <a data-href="/zwyx/dd_index" target="_blank" class='active'>地点薪资关系图</a>
+        <a data-href="/zwyx/xl_index" target="_blank">学历薪资关系图</a>
+        <a data-href="/zwyx/gsgm_index" target="_blank">公司规模薪资关系图</a>
+        <a data-href="/zwyx/gsxz_index" target="_blank">公司性质薪资关系图</a>
+        <a data-href="/zwyx/jy_index" target="_blank">经验薪资关系图</a>
+        <a data-href="/zwyx/zwmc_index" target="_blank">职位分类薪资关系图</a>
+        <a data-href="/dd/zwmc_index" target="_blank">地点职位数关系图</a>
+        <a data-href="/dd/gsmc_index" target="_blank">地点公司数关系图</a>
+        <a data-href="/dd/type_index" target="_blank">职位类型相关综合关系图</a>
+        <iframe src="/zwyx/dd_index" width="100%" id="show_iframe" scrolling="no" onload="changeFrameHeight()" frameborder="0"></iframe>
+    <script>
+        function changeFrameHeight(){
+            var ifm= document.getElementById("show_iframe");
+            var a=document.getElementsByTagName('a')[0];
+            var dheight=document.documentElement.clientHeight;
+            ifm.height=dheight-a.offsetHeight-5;
+        }
+        window.onresize=function(){
+             changeFrameHeight();
+        };
+        $(function(){
+            $('a').click(function(){
+                $(this).addClass('active').siblings().removeClass('active')
+                $("#show_iframe").attr('src',$(this).data('href'))
+            })
+        })
+    </script>
+</body>
+</html>

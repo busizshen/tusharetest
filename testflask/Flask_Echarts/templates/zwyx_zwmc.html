@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en"  style="height: 100%">
+<head>
+    <meta charset="UTF-8">
+    <title>职位分类和薪资关系图</title>
+    <script src="/static/jquery-1.12.0.min.js"></script>
+    <script src="/static/echarts.min.js"></script>
+</head>
+<body style="height: 100%">
+<div id="main" style="height: 100%"></div>
+<script>
+    $(function () {
+        $.ajax({
+            url:'/zwyx/zwmc',
+            type:'get',
+            dataType:'json',
+            success:function (returnData) {
+                if(returnData.status==1)
+                {
+                    myoption = {
+                        title: {
+                            text: '职位分类和薪资关系图',
+                            subtext: '北风网制作',
+                            sublink: 'http://www.ibeifeng.com',
+                            textStyle: {
+                                color: '#fff'
+                            }
+                        },
+                        backgroundColor: '#0f375f',
+                        tooltip: {
+                            trigger: 'axis',
+                            axisPointer: {
+                                type: 'shadow'
+                            }
+                        },
+                        legend: {
+                            data: ['职位总数', '平均薪资','最大薪资','最小薪资'],
+                            textStyle: {
+                                color: '#ccc'
+                            }
+                        },
+                        xAxis: {
+                            data: returnData.zwmc_list,
+                            axisLine: {
+                                lineStyle: {
+                                    color: '#ccc'
+                                }
+                            }
+                        },
+                        yAxis: {
+                            splitLine: {show: false},
+                            axisLine: {
+                                lineStyle: {
+                                    color: '#ccc'
+                                }
+                            }
+                        },
+                        series: [{
+                            name: '职位总数',
+                            type: 'line',
+                            smooth: true,
+                            showAllSymbol: true,
+                            symbol: 'emptyCircle',
+                            symbolSize: 15,
+                            data: returnData.count_zw
+                        }, {
+                            name: '平均薪资',
+                            type: 'bar',
+                            barWidth: 10,
+                            itemStyle: {
+                                normal: {
+                                    barBorderRadius: 5,
+                                    color: new echarts.graphic.LinearGradient(
+                                        0, 0, 0, 1,
+                                        [
+                                            {offset: 0, color: '#14c8d4'},
+                                            {offset: 1, color: '#43eec6'}
+                                        ]
+                                    )
+                                }
+                            },
+                            data: returnData.avg_zw
+                        }, {
+                            name: '最大薪资',
+                            type: 'scatter',
+                            itemStyle: {
+                                normal: {
+                                    color: '#94db02'
+                                }
+                            },
+                            data: returnData.max_xz
+                        },{
+                            name: '最小薪资',
+                            type: 'pictorialBar',
+                            symbol: 'rect',
+                            itemStyle: {
+                                normal: {
+                                    color: '#2c72db'
+                                }
+                            },
+                            symbolRepeat: true,
+                            symbolSize: [12, 4],
+                            symbolMargin: 1,
+                            z: -10,
+                            data: returnData.min_xz
+                        }]
+                    };
+                    var myChart = echarts.init(document.getElementById('main'));
+                    myChart.setOption(myoption);
+                }
+                 else
+                {
+                    alert('暂无数据');
+                }
+            }
+        })
+
+    })
+</script>
+</body>
+</html>

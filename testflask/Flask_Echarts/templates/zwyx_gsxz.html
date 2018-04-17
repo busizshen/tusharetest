@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en"  style="height: 100%">
+<head>
+    <meta charset="UTF-8">
+    <title>公司性质和薪资关系图</title>
+    <script src="/static/jquery-1.12.0.min.js"></script>
+    <script src="/static/echarts.min.js"></script>
+</head>
+<body style="height: 100%">
+<div id="main" style="height: 100%"></div>
+<script>
+    $(function () {
+        $.ajax({
+            url:'/zwyx/gsxz',
+            type:'get',
+            dataType:'json',
+            success:function (returnData) {
+                if(returnData.status==1)
+                {
+                    myoption = {
+                        title: {
+                        text: '公司性质和薪资关系图',
+                        subtext: '北风网制作',
+                        sublink: 'http://www.ibeifeng.com',
+                    },
+                    tooltip: {
+                        trigger: 'axis'
+                    },
+                    legend: {
+                        data:['总职位数','平均薪资','最低薪资','最高薪资']
+                    },
+                    toolbox: {
+                        show: true,
+                        feature: {
+                            dataZoom: {
+                                yAxisIndex: 'none'
+                            },
+                            dataView: {readOnly: false},
+                            magicType: {type: ['line', 'bar']},
+                            restore: {},
+                            saveAsImage: {}
+                        }
+                    },
+                    xAxis:  {
+                        type: 'category',
+                        boundaryGap: false,
+                        data: returnData.gsxz_list
+                    },
+                    yAxis: {
+                        type: 'value',
+                        axisLabel: {
+                            formatter: '{value}'
+                        }
+                    },
+                    series: [
+                        {
+                            name:'总职位数',
+                            type:'line',
+                            data:returnData.count_zw,
+                            markPoint: {
+                                data: [
+                                    {type: 'max', name: '总职位数最大值'},
+                                    {type: 'min', name: '总职位数最小值'}
+                                ]
+                            },
+                            markLine: {
+                                data: [
+                                    {type: 'average', name: '总职位数平均值'}
+                                ]
+                            }
+                        },
+                        {
+                            name:'平均薪资',
+                            type:'line',
+                            data:returnData.avg_zw,
+                            markPoint: {
+                                data: [
+                                    {name: '最低', value: -2, xAxis: 1, yAxis: -1.5}
+                                ]
+                            },
+                            markLine: {
+                                data: [
+                                    {type: 'average', name: '平均薪资平均值'},
+                                    [{
+                                        symbol: 'none',
+                                        x: '89%',
+                                        yAxis: 'max'
+                                    }, {
+                                        symbol: 'circle',
+                                        label: {
+                                            normal: {
+                                                position: 'start',
+                                                formatter: '平均薪资最大值'
+                                            }
+                                        },
+                                        type: 'max',
+                                        name: '平均薪资最高点'
+                                    }]
+                                ]
+                            }
+                        },
+                        {
+                            name:'最高薪资',
+                            type:'line',
+                            data:returnData.max_xz,
+                            markPoint: {
+                                data: [
+                                    {type: 'max', name: '最高薪资最大值'},
+                                    {type: 'min', name: '最高薪资最小值'}
+                                ]
+                            },
+                            markLine: {
+                                data: [
+                                    {type: 'average', name: '最高薪资平均值'}
+                                ]
+                            }
+                        },
+                        {
+                            name:'最低薪资',
+                            type:'line',
+                            data:returnData.min_xz,
+                            markPoint: {
+                                data: [
+                                    {name: '最低', value: -2, xAxis: 1, yAxis: 0.5}
+                                ]
+                            },
+                            markLine: {
+                                data: [
+                                    {type: 'average', name: '最低薪资平均值'},
+                                    [{
+                                        symbol: 'none',
+                                        x: '89%',
+                                        yAxis: 'max'
+                                    }, {
+                                        symbol: 'circle',
+                                        label: {
+                                            normal: {
+                                                position: 'start',
+                                                formatter: '最低薪资最大值'
+                                            }
+                                        },
+                                        type: 'max',
+                                        name: '最低薪资最高点'
+                                    }]
+                                ]
+                            }
+                        }
+                    ]
+                    };
+                    var myChart = echarts.init(document.getElementById('main'));
+                    myChart.setOption(myoption);
+                }
+                else
+                {
+                    alert('暂无数据')
+                }
+            }
+        })
+
+    })
+</script>
+</body>
+</html>

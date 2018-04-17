@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en"  style="height: 100%">
+<head>
+    <meta charset="UTF-8">
+    <title>地点和薪资关系图</title>
+    <script src="/static/jquery-1.12.0.min.js"></script>
+    <script src="/static/echarts.min.js"></script>
+    <script src="/static/china.js"></script>
+</head>
+<body style="height: 100%">
+<div id="main" style="height: 100%"></div>
+<script>
+    $(function () {
+        $.ajax({
+            url:'/zwyx/dd',
+            type:'get',
+            dataType:'json',
+            success:function (returnData) {
+                if(returnData.status==1)
+                {
+                    myoption = {
+                        title: {
+                            text: '地点和薪资关系图',
+                            subtext: '北风网制作',
+                            sublink: 'http://www.ibeifeng.com',
+                            left: 'left'
+                        },
+                        tooltip: {
+                            trigger: 'item'
+                        },
+                        legend: {
+                            x : 'center',
+                            y : 'top',
+                            data:['总职位数','平均薪资']
+                        },
+                        visualMap: {
+                            min: 0,
+                            max: 30000,
+                            left: 'left',
+                            top: '60%',
+                            text: ['高','低'],           // 文本，默认为数值文本
+                            calculable: true
+                        },
+                        toolbox: {
+                            show: true,
+                            orient: 'vertical',
+                            left: 'right',
+                            top: 'center',
+                            feature: {
+                                dataView: {readOnly: false},
+                                restore: {},
+                                saveAsImage: {}
+                            }
+                        },
+                        series: [
+                            {
+                                name: '总职位数',
+                                type: 'map',
+                                mapType: 'china',
+                                roam: false,
+                                label: {
+                                    normal: {
+                                        show: true
+                                    },
+                                    emphasis: {
+                                        show: true
+                                    }
+                                },
+                                data:returnData.count_zw
+                            },
+                            {
+                                name: '平均薪资',
+                                type: 'map',
+                                mapType: 'china',
+                                label: {
+                                    normal: {
+                                        show: true
+                                    },
+                                    emphasis: {
+                                        show: true
+                                    }
+                                },
+                                data:returnData.avg_zwyx
+                            }
+                        ]
+                    };
+                    var myChart = echarts.init(document.getElementById('main'));
+                    myChart.setOption(myoption);
+                }
+                else
+                {
+                    alert('暂无数据')
+                }
+            }
+        })
+
+    })
+</script>
+
+</body>
+</html>

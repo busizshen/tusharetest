@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="en"  style="height: 100%">
+<head>
+    <meta charset="UTF-8">
+    <title>职位类型相关综合关系图</title>
+    <script src="/static/jquery-1.12.0.min.js"></script>
+    <script src="/static/echarts.min.js"></script>
+    <script src="/static/china.js"></script>
+</head>
+<body style="height: 100%">
+<div id="main" style="height: 100%"></div>
+<script>
+    $(function () {
+        $.ajax({
+            url:'/dd/type',
+            type:'get',
+            dataType:'json',
+            success:function (returnData) {
+                if(returnData.status==1)
+                {
+                    waterMarkText='北风网';
+                    var canvas = document.createElement('canvas');
+                    var ctx = canvas.getContext('2d');
+                    canvas.width = canvas.height = 100;
+                    ctx.textAlign = 'center';
+                    ctx.textBaseline = 'middle';
+                    ctx.globalAlpha = 0.08;
+                    ctx.font = '20px Microsoft Yahei';
+                    ctx.translate(50, 50);
+                    ctx.rotate(-Math.PI / 4);
+                    ctx.fillText(waterMarkText, 0, 0);
+                    var builderJson = {
+                      "charts": returnData.avg_xz,
+                      "components": returnData.dd_type
+                    };
+
+                    var zwmc_type_json = returnData.gs_type;
+
+                    var gsmc_type_json = returnData.zw_type;
+
+                    myoption = {
+                        backgroundColor: {
+                            type: 'pattern',
+                            image: canvas,
+                            repeat: 'repeat'
+                        },
+                        tooltip: {},
+                        title: [{
+                            text: '各职位类型平均薪资',
+                            subtext: '所有职位数据平均薪资： ' + returnData.all_avg,
+                            x: '25%',
+                            textAlign: 'center'
+                        },{
+                            text: '各职位类型地点分布数',
+                            subtext: '最大分布数： '+(returnData.count_dd_type-20),
+                            x: '25%',
+                            y: '50%',
+                            textAlign: 'center'
+                        },{
+                            text: '各职位类型的职位总数',
+                            subtext: '总计： ' + Object.keys(zwmc_type_json).reduce(function (all, key) {
+                                return all + zwmc_type_json[key];
+                            }, 0),
+                            x: '75%',
+                            textAlign: 'center'
+                        }, {
+                            text: '各职位类型的公司总数',
+                            subtext: '总计： ' + Object.keys(gsmc_type_json).reduce(function (all, key) {
+                                return all + gsmc_type_json[key];
+                            }, 0),
+                            x: '75%',
+                            y: '50%',
+                            textAlign: 'center'
+                        }],
+                        grid: [{
+                            top: 50,
+                            width: '50%',
+                            bottom: '55%',
+                            left: 10,
+                            containLabel: true
+                        }, {
+                            top: '60%',
+                            width: '50%',
+                            bottom: '2%',
+                            left: 10,
+                            containLabel: true
+                        }],
+                        xAxis: [{
+                            type: 'value',
+                            max: returnData.count_avg_xz,
+                            splitLine: {
+                                show: false
+                            }
+                        }, {
+                            type: 'value',
+                            gridIndex: 1,
+                            splitLine: {
+                                show: false
+                            }
+                        }],
+                        yAxis: [{
+                            type: 'category',
+                            data: Object.keys(builderJson.charts),
+                            axisLabel: {
+                                interval: 0,
+                                rotate: 30
+                            },
+                            splitLine: {
+                                show: false
+                            }
+                        }, {
+                            gridIndex: 1,
+                            type: 'category',
+                            data: Object.keys(builderJson.components),
+                            axisLabel: {
+                                interval: 0,
+                                rotate: 30
+                            },
+                            splitLine: {
+                                show: false
+                            }
+                        }],
+                        series: [
+			{
+                            type: 'bar',
+                            stack: 'chart',
+                            z: 3,
+                            label: {
+                                normal: {
+                                    position: 'right',
+                                    show: true
+                                }
+                            },
+                           
+                            data: Object.keys(builderJson.charts).map(function (key) {
+                                return builderJson.charts[key];
+                            })
+                        },{
+                            type: 'bar',
+                            stack: 'chart',
+			    silent: true,
+ 			    itemStyle: {
+                                normal: {
+                                    color: '#eee'
+                                }
+                            },
+                            data: Object.keys(builderJson.charts).map(function (key) {
+                                return returnData.max_avg_xz-builderJson.charts[key];
+                            })
+                        }, {
+                            type: 'bar',
+                            stack: 'component',
+			    xAxisIndex: 1,
+                            yAxisIndex: 1,
+                            z: 3,
+                            label: {
+                                normal: {
+                                    position: 'right',
+                                    show: true
+                                }
+                            },
+                           
+                            data: Object.keys(builderJson.components).map(function (key) {
+                                return builderJson.components[key];
+                            })
+                        }, {
+                            type: 'bar',
+                            stack: 'component',
+                             silent: true,
+                            xAxisIndex: 1,
+                            yAxisIndex: 1,
+                            itemStyle: {
+                                normal: {
+                                    color: '#eee'
+                                }
+                            },
+                            data: Object.keys(builderJson.components).map(function (key) {
+                                return returnData.count_dd_type-builderJson.components[key];
+                            })
+                        }, {
+                            type: 'pie',
+                            radius: [0, '30%'],
+                            center: ['75%', '25%'],
+                            data: Object.keys(zwmc_type_json).map(function (key) {
+                                return {
+                                    name: key,
+                                    value: zwmc_type_json[key]
+                                }
+                            })
+                        }, {
+                            type: 'pie',
+                            radius: [0, '30%'],
+                            center: ['75%', '75%'],
+                            data: Object.keys(gsmc_type_json).map(function (key) {
+                                return {
+                                    name: key,
+                                    value: gsmc_type_json[key]
+                                }
+                            })
+                        }]
+                    };
+                    var myChart = echarts.init(document.getElementById('main'));
+                    myChart.setOption(myoption);
+                }
+                else
+                {
+                    alert('暂无数据')
+                }
+            }
+        })
+
+    })
+</script>
+</body>
+</html>
