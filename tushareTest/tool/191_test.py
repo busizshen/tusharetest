@@ -42,10 +42,12 @@ class gtja_191:
         return (na * decay_weights).sum()
 
     # HIGHDAY 函数
+    # 找出多维数组中的的最大索引值 并用na的长度去减
     def func_highday(self, na):
         return len(na) - na.values.argmax()
 
     # LOWDAY 函数
+    # 找出多维数组中的的最大索引值 并用na的长度去减
     def func_lowday(self, na):
         return len(na) - na.values.argmin()
 
